@@ -1,5 +1,5 @@
 # app.py - Complete Authentication System with Google OAuth
-# Full working version with session tracking
+# Safe version - uses environment variables for credentials
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
@@ -25,7 +25,7 @@ app = Flask(__name__)
 # ============================================
 # CONFIGURATION
 # ============================================
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///auth.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SESSION_COOKIE_SECURE'] = False  # Set True in production with HTTPS
@@ -35,25 +35,27 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 # ============================================
 # GOOGLE OAUTH CONFIGURATION
 # ============================================
-# Option 1: Use environment variables (if .env file is working)
-# app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
-# app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
+# SECURE: Get credentials from environment variables (NOT hardcoded!)
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
 
-# Option 2: Hardcode credentials (USE THIS IF .env ISN'T WORKING)
-app.config['GOOGLE_CLIENT_ID'] = '555459652773-8414nqlutkscck0pg3dpc734g1f4g3bm.apps.googleusercontent.com'
-app.config['GOOGLE_CLIENT_SECRET'] = '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'
-
-# Print credentials for debugging
+# Print credentials for debugging (remove in production)
 print("=" * 60)
 print("🔑 Google OAuth Credentials:")
-print(f"Client ID: {app.config['GOOGLE_CLIENT_ID']}")
-print(f"Client Secret: {app.config['GOOGLE_CLIENT_SECRET'][:15]}...")
+if app.config['GOOGLE_CLIENT_ID']:
+    print(f"Client ID: {app.config['GOOGLE_CLIENT_ID'][:20]}...")
+else:
+    print("Client ID: NOT SET!")
+if app.config['GOOGLE_CLIENT_SECRET']:
+    print(f"Client Secret: {app.config['GOOGLE_CLIENT_SECRET'][:15]}...")
+else:
+    print("Client Secret: NOT SET!")
 print("=" * 60)
 
 # Check if credentials are loaded
 if not app.config['GOOGLE_CLIENT_ID'] or not app.config['GOOGLE_CLIENT_SECRET']:
     print("⚠️  WARNING: Google OAuth credentials not found!")
-    print("Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET")
+    print("Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file")
     print("=" * 60)
 else:
     print("✅ Google OAuth credentials loaded successfully!")
