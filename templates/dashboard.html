@@ -1,0 +1,196 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <h1 style="margin-bottom: 25px; color: #1a1a2e;">Dashboard</h1>
+    
+    <!-- User Profile Card -->
+    <div style="background: white; padding: 25px 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px; display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
+        <!-- Avatar -->
+        <div style="flex-shrink: 0;">
+            {% if current_user.avatar_url %}
+                <img src="{{ current_user.avatar_url }}" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #4a90d9; object-fit: cover;">
+            {% else %}
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #4a90d9, #357abd); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold;">
+                    {{ current_user.username[0].upper() }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- User Info -->
+        <div style="flex: 1;">
+            <h3 style="margin-bottom: 5px; color: #1a1a2e;">Welcome, {{ current_user.username }}!</h3>
+            <p style="color: #666; margin-bottom: 8px;">
+                {% if current_user.is_google_user %}
+                    <span style="background: #d4edda; color: #155724; padding: 2px 12px; border-radius: 20px; font-size: 13px; display: inline-block;">
+                        🟢 Signed in with Google
+                    </span>
+                {% else %}
+                    <span style="background: #d1ecf1; color: #0c5460; padding: 2px 12px; border-radius: 20px; font-size: 13px; display: inline-block;">
+                        🔐 Signed in with password
+                    </span>
+                {% endif %}
+            </p>
+            <p style="color: #888; font-size: 14px; margin: 3px 0;">
+                <strong>Email:</strong> {{ current_user.email }}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Account Details Card -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+            <h4 style="color: #1a1a2e; margin-bottom: 10px;">📅 Account Info</h4>
+            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                <strong>Created:</strong> {{ current_user.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </p>
+            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                <strong>Last Login:</strong> {{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else 'Never' }}
+            </p>
+            {% if current_user.last_ip %}
+                <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                    <strong>Last IP:</strong> {{ current_user.last_ip }}
+                </p>
+            {% endif %}
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+            <h4 style="color: #1a1a2e; margin-bottom: 10px;">🔐 Security</h4>
+            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                <strong>Account Status:</strong> 
+                <span style="color: #2ecc71;">✅ Active</span>
+            </p>
+            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                <strong>Failed Attempts:</strong> {{ current_user.failed_attempts }}/5
+            </p>
+            <p style="color: #666; font-size: 14px; margin: 5px 0;">
+                <strong>Account Locked:</strong> 
+                {% if current_user.is_locked %}
+                    <span style="color: #e74c3c;">🔒 Yes</span>
+                {% else %}
+                    <span style="color: #2ecc71;">🔓 No</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Active Sessions Card -->
+    <div style="background: white; padding: 20px 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+            <h4 style="color: #1a1a2e;">💻 Active Sessions</h4>
+            <span style="background: #f0f2f5; padding: 4px 12px; border-radius: 20px; color: #666; font-size: 14px;">
+                {{ sessions|length }} active
+            </span>
+        </div>
+        
+        {% if sessions %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #f8f9fa; border-radius: 8px;">
+                            <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #555;">Device</th>
+                            <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #555;">IP Address</th>
+                            <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #555;">Started</th>
+                            <th style="padding: 12px 15px; text-align: left; font-weight: 600; color: #555;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in sessions %}
+                            <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
+                                <td style="padding: 12px 15px;">
+                                    <span style="display: flex; align-items: center; gap: 8px;">
+                                        <span>🖥️</span>
+                                        {{ session.user_agent[:40] if session.user_agent else 'Unknown Device' }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 15px; color: #555;">
+                                    {{ session.ip_address or 'Unknown' }}
+                                </td>
+                                <td style="padding: 12px 15px; color: #555;">
+                                    {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </td>
+                                <td style="padding: 12px 15px;">
+                                    {% if session.is_active %}
+                                        <span style="background: #d4edda; color: #155724; padding: 3px 12px; border-radius: 20px; font-size: 12px; display: inline-block;">
+                                            ✅ Active
+                                        </span>
+                                    {% else %}
+                                        <span style="background: #f8d7da; color: #721c24; padding: 3px 12px; border-radius: 20px; font-size: 12px; display: inline-block;">
+                                            ❌ Inactive
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px 0; color: #999;">
+                <p style="font-size: 16px;">No active sessions found.</p>
+                <p style="font-size: 14px;">Login to create a session.</p>
+            </div>
+        {% endif %}
+        
+        <!-- Action Buttons -->
+        <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="{{ url_for('sessions') }}" class="btn btn-primary" style="padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 14px;">
+                🔍 View All Sessions
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger" style="padding: 10px 20px; text-decoration: none; border-radius: 8px; font-size: 14px;">
+                🚪 Logout Current Device
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background: #4a90d9;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #357abd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 144, 217, 0.3);
+    }
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .profile-card {
+            flex-direction: column !important;
+            text-align: center;
+        }
+        table {
+            font-size: 12px;
+        }
+        th, td {
+            padding: 8px 10px !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,41 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 20px 0;">
+    <h1 style="font-size: 36px; color: #1a1a2e;">Welcome to Secure Auth System</h1>
+    <p style="font-size: 18px; color: #666; margin: 20px 0;">
+        Complete authentication with advanced security features
+    </p>
+    
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>🔒 Strong Passwords</h3>
+            <p>12+ characters with uppercase, lowercase, numbers, and special characters</p>
+        </div>
+        <div class="feature-card">
+            <h3>🛡️ Brute Force Protection</h3>
+            <p>Accounts lock after 5 failed attempts for 30 minutes</p>
+        </div>
+        <div class="feature-card">
+            <h3>💻 Session Management</h3>
+            <p>View and manage all your active sessions across devices</p>
+        </div>
+        <div class="feature-card">
+            <h3>📊 Login Tracking</h3>
+            <p>Track last login time and IP address for security</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        {% if current_user.is_authenticated %}
+            <a href="/dashboard" class="btn btn-success" style="padding: 12px 30px; margin: 5px;">Go to Dashboard</a>
+            <a href="/sessions" class="btn btn-primary" style="padding: 12px 30px; margin: 5px;">View Sessions</a>
+        {% else %}
+            <a href="/register" class="btn btn-success" style="padding: 12px 30px; margin: 5px;">Get Started</a>
+            <a href="/login" class="btn btn-primary" style="padding: 12px 30px; margin: 5px;">Sign In</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
