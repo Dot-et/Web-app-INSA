@@ -11,9 +11,9 @@
 >> pip install -r requirements.txt
 >>
 >> # Create .env file with your credentials
->> GOOGLE_CLIENT_ID=your_client_id
->> GOOGLE_CLIENT_SECRET=your_client_secret
->> SECRET_KEY=your_secret_key
+>> GOOGLE_CLIENT_ID=our_client_id
+>> GOOGLE_CLIENT_SECRET=our_client_secret
+>> SECRET_KEY=our_secret_key
 >>
 >> # Run the app
 >> python app.py

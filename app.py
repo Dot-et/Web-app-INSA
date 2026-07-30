@@ -1,5 +1,5 @@
 # app.py - Complete Authentication System with Google OAuth
-# Safe version - uses environment variables for credentials
+# Fixed Google OAuth callback
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +10,7 @@ from authlib.integrations.flask_client import OAuth
 import re
 import secrets
 import os
+import requests
 from dotenv import load_dotenv
 
 # ============================================
@@ -35,11 +36,11 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 # ============================================
 # GOOGLE OAUTH CONFIGURATION
 # ============================================
-# SECURE: Get credentials from environment variables (NOT hardcoded!)
+# Get credentials from environment variables
 app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
 app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
 
-# Print credentials for debugging (remove in production)
+# Print credentials for debugging
 print("=" * 60)
 print("🔑 Google OAuth Credentials:")
 if app.config['GOOGLE_CLIENT_ID']:
@@ -379,17 +380,30 @@ def google_login():
 
 @app.route('/google-callback')
 def google_callback():
-    """Handle Google OAuth callback with session tracking"""
+    """Handle Google OAuth callback - FIXED VERSION"""
     try:
         # Get token from Google
         token = google.authorize_access_token()
-        user_info = google.parse_id_token(token)
+        
+        # Fetch user info from Google API using the access token
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers=headers)
+        
+        if response.status_code != 200:
+            flash('Failed to get user info from Google', 'danger')
+            return redirect(url_for('login'))
+        
+        user_info = response.json()
         
         # Extract user data
         email = user_info.get('email')
-        name = user_info.get('name', email.split('@')[0])
+        name = user_info.get('name', email.split('@')[0] if email else 'User')
         google_id = user_info.get('sub')
         avatar = user_info.get('picture', '')
+        
+        if not email:
+            flash('Email not found from Google', 'danger')
+            return redirect(url_for('login'))
         
         # Check if user exists
         user = User.query.filter_by(email=email).first()
