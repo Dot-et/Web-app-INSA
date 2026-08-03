@@ -1,0 +1,21 @@
+﻿# ============================================
+# ADD THESE TO YOUR app.py
+# ============================================
+
+# 1. Add imports at the top:
+from routes.documents import documents_bp
+from websocket import socketio
+
+# 2. Register blueprint (add after app initialization):
+app.register_blueprint(documents_bp, url_prefix='/documents')
+
+# 3. Initialize SocketIO (add before if __name__ == '__main__'):
+socketio.init_app(app)
+
+# 4. Update the main block:
+if __name__ == '__main__':
+    socketio.run(app, debug=True, host='127.0.0.1', port=5000)
+
+# 5. Update navigation in base.html to include Documents link:
+# Add to nav menu:
+# <li><a href="/documents">Documents</a></li>

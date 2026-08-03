@@ -1,0 +1,112 @@
+﻿/* ============================================
+   EDITOR STYLES
+   ============================================ */
+
+.editor-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.editor-container-wrapper {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid #e8ecf0;
+}
+
+.editor-container-wrapper .ql-editor {
+    padding: 32px 48px !important;
+    min-height: 500px;
+    color: #1a1a2e;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.editor-container-wrapper .ql-editor:focus {
+    outline: none;
+}
+
+.editor-container-wrapper .ql-editor h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #1a1a2e !important;
+    margin: 24px 0 16px !important;
+    letter-spacing: -0.5px !important;
+}
+
+.editor-container-wrapper .ql-editor h2 {
+    font-size: 26px !important;
+    font-weight: 600 !important;
+    color: #1a1a2e !important;
+    margin: 20px 0 12px !important;
+}
+
+.editor-container-wrapper .ql-editor h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    color: #1a1a2e !important;
+    margin: 16px 0 10px !important;
+}
+
+.editor-container-wrapper .ql-editor p {
+    margin: 8px 0 !important;
+    line-height: 1.8 !important;
+}
+
+.editor-container-wrapper .ql-editor ul,
+.editor-container-wrapper .ql-editor ol {
+    padding-left: 24px !important;
+    margin: 8px 0 !important;
+}
+
+.editor-container-wrapper .ql-editor blockquote {
+    border-left: 4px solid #1a73e8 !important;
+    padding: 12px 16px !important;
+    margin: 12px 0 !important;
+    color: #5f6368 !important;
+    background: #f8f9fa !important;
+    border-radius: 0 8px 8px 0 !important;
+}
+
+.editor-container-wrapper .ql-editor pre.ql-syntax {
+    background: #1a1a2e !important;
+    color: #f0f2f5 !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 14px !important;
+    overflow-x: auto !important;
+}
+
+.editor-container-wrapper .ql-editor a {
+    color: #1a73e8 !important;
+    text-decoration: underline !important;
+}
+
+.editor-container-wrapper .ql-editor img {
+    max-width: 100% !important;
+    border-radius: 8px !important;
+    margin: 8px 0 !important;
+}
+
+/* Editor Footer */
+.editor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: #fafbfc;
+    border-top: 1px solid #e8ecf0;
+    font-size: 13px;
+    color: #5f6368;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.editor-footer span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}

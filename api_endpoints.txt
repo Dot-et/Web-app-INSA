@@ -1,0 +1,44 @@
+﻿
+# ============================================
+# API ENDPOINTS
+# ============================================
+
+@app.route('/api/documents/<int:doc_id>/save', methods=['POST'])
+@login_required
+def save_document(doc_id):
+    """API endpoint for auto-saving documents"""
+    from models import Document, DocumentCollaborator
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Check permissions
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator or collaborator.permission not in ['editor', 'commenter']:
+            return jsonify({'error': 'Permission denied'}), 403
+    
+    data = request.get_json()
+    if data:
+        doc.content = data.get('content', '')
+        doc.updated_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'status': 'saved'})
+    return jsonify({'error': 'No data provided'}), 400
+
+@app.route('/api/documents/<int:doc_id>/rename', methods=['POST'])
+@login_required
+def rename_document_api(doc_id):
+    """API endpoint for renaming documents"""
+    from models import Document
+    doc = Document.query.get_or_404(doc_id)
+    
+    if doc.owner_id != current_user.id:
+        return jsonify({'error': 'Only the owner can rename'}), 403
+    
+    data = request.get_json()
+    if data:
+        doc.title = data.get('title', 'Untitled')
+        db.session.commit()
+        return jsonify({'status': 'renamed'})
+    return jsonify({'error': 'No data provided'}), 400

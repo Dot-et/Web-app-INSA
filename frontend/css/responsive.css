@@ -1,0 +1,94 @@
+﻿/* ============================================
+   RESPONSIVE STYLES
+   ============================================ */
+
+@media (max-width: 768px) {
+    .editor-nav {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+    }
+    
+    .editor-nav .nav-left {
+        flex-wrap: wrap;
+    }
+    
+    .editor-nav .nav-right {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    
+    .editor-nav .nav-left .doc-title-input {
+        min-width: 120px;
+        font-size: 16px;
+    }
+    
+    .editor-container-wrapper .ql-editor {
+        padding: 16px !important;
+    }
+    
+    .editor-page {
+        padding: 10px;
+    }
+    
+    .editor-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .presence-bar {
+        padding: 8px 12px;
+    }
+    
+    .documents-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .page-header .btn {
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .editor-nav .nav-left .back-btn {
+        font-size: 16px;
+        padding: 4px 8px;
+    }
+    
+    .editor-nav .nav-left .doc-title-input {
+        font-size: 14px;
+        min-width: 100px;
+    }
+    
+    .editor-nav .nav-right .btn {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+    
+    .editor-container-wrapper .ql-editor {
+        padding: 12px !important;
+        font-size: 14px;
+    }
+    
+    .presence-bar .presence-label {
+        font-size: 12px;
+    }
+    
+    .presence-bar .presence-user {
+        font-size: 12px;
+        padding: 2px 10px 2px 4px;
+    }
+    
+    .presence-bar .presence-user .avatar {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+}

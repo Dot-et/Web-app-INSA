@@ -1,0 +1,736 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ document.title }} - Editor{% endblock %}
+
+{% block extra_css %}
+<!-- Quill Editor CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* ============================================
+       MODERN EDITOR - COMPLETE REDESIGN
+       ============================================ */
+    
+    .editor-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    /* --- TOP HEADER --- */
+    .editor-header {
+        background: white;
+        border-radius: 16px;
+        padding: 16px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    .editor-header .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .editor-header .header-left .back-btn {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+    }
+    
+    .editor-header .header-left .back-btn:hover {
+        background: #f0f2f5;
+        color: #1a1a2e;
+    }
+    
+    .editor-header .header-left .doc-title-input {
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a1a2e;
+        border: none;
+        background: transparent;
+        padding: 8px 14px;
+        border-radius: 10px;
+        min-width: 180px;
+        outline: none;
+        transition: background 0.3s ease;
+        flex: 1;
+        font-family: inherit;
+    }
+    
+    .editor-header .header-left .doc-title-input:hover {
+        background: #f8f9fa;
+    }
+    
+    .editor-header .header-left .doc-title-input:focus {
+        background: #f0f2f5;
+    }
+    
+    .editor-header .header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .editor-header .header-right .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 18px;
+        border-radius: 24px;
+        font-size: 13px;
+        font-weight: 500;
+        background: #e8f5e9;
+        color: #2e7d32;
+        transition: all 0.3s ease;
+    }
+    
+    .editor-header .header-right .status-badge.saving {
+        background: #fff3e0;
+        color: #e65100;
+    }
+    
+    .editor-header .header-right .status-badge .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #2ecc71;
+        display: inline-block;
+        animation: pulse-dot 2s infinite;
+    }
+    
+    .editor-header .header-right .status-badge.saving .dot {
+        background: #f39c12;
+        animation: pulse-dot 0.8s infinite;
+    }
+    
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    
+    .editor-header .header-right .btn {
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+    
+    .editor-header .header-right .btn-primary {
+        background: #4a90d9;
+        color: white;
+    }
+    
+    .editor-header .header-right .btn-primary:hover {
+        background: #357abd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(74, 144, 217, 0.3);
+    }
+    
+    .editor-header .header-right .btn-secondary {
+        background: #f0f2f5;
+        color: #333;
+    }
+    
+    .editor-header .header-right .btn-secondary:hover {
+        background: #e5e8ec;
+    }
+    
+    .editor-header .header-right .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .editor-header .header-right .btn-danger:hover {
+        background: #c0392b;
+    }
+    
+    /* --- PRESENCE BAR --- */
+    .presence-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 12px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    .presence-bar .presence-label {
+        font-size: 13px;
+        color: #6c757d;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .presence-bar .presence-label i {
+        color: #2ecc71;
+        font-size: 10px;
+    }
+    
+    .presence-bar .presence-user {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 16px 4px 8px;
+        background: #f0f2f5;
+        border-radius: 24px;
+        font-size: 13px;
+        border: 1px solid #e8ecf0;
+        transition: all 0.3s ease;
+    }
+    
+    .presence-bar .presence-user .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4a90d9, #357abd);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .presence-bar .presence-user .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #2ecc71;
+        display: inline-block;
+    }
+    
+    .presence-bar .presence-user .status-indicator.idle {
+        background: #f39c12;
+    }
+    
+    #presence-others {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    /* --- EDITOR CONTAINER --- */
+    .editor-wrapper {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    /* --- QUILL CUSTOMIZATION --- */
+    .ql-toolbar {
+        border: none !important;
+        border-bottom: 1px solid #e8ecf0 !important;
+        padding: 12px 20px !important;
+        background: #fafbfc !important;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-radius: 0 !important;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .ql-toolbar .ql-formats {
+        margin-right: 6px !important;
+        display: flex;
+        align-items: center;
+    }
+    
+    .ql-toolbar button {
+        border-radius: 6px !important;
+        padding: 4px 8px !important;
+        transition: all 0.2s ease !important;
+        height: 30px;
+        width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ql-toolbar button:hover {
+        background: #e8ecf0 !important;
+    }
+    
+    .ql-toolbar button.ql-active {
+        background: #e8f0fe !important;
+        color: #1a73e8 !important;
+    }
+    
+    .ql-toolbar .ql-picker {
+        height: 30px !important;
+    }
+    
+    .ql-toolbar .ql-picker-label {
+        border-radius: 6px !important;
+        padding: 0 12px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .ql-container {
+        border: none !important;
+        font-size: 16px !important;
+        line-height: 1.8 !important;
+        min-height: 500px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    }
+    
+    .ql-editor {
+        padding: 32px 48px !important;
+        min-height: 500px;
+        color: #1a1a2e;
+    }
+    
+    .ql-editor:focus {
+        outline: none;
+    }
+    
+    .ql-editor h1 {
+        font-size: 34px !important;
+        font-weight: 700 !important;
+        color: #1a1a2e !important;
+        margin: 28px 0 16px !important;
+        letter-spacing: -0.5px !important;
+    }
+    
+    .ql-editor h2 {
+        font-size: 28px !important;
+        font-weight: 600 !important;
+        color: #1a1a2e !important;
+        margin: 24px 0 12px !important;
+    }
+    
+    .ql-editor h3 {
+        font-size: 22px !important;
+        font-weight: 600 !important;
+        color: #1a1a2e !important;
+        margin: 18px 0 10px !important;
+    }
+    
+    .ql-editor p {
+        margin: 8px 0 !important;
+        line-height: 1.8 !important;
+    }
+    
+    .ql-editor ul, .ql-editor ol {
+        padding-left: 24px !important;
+        margin: 8px 0 !important;
+    }
+    
+    .ql-editor li {
+        margin: 4px 0 !important;
+    }
+    
+    .ql-editor blockquote {
+        border-left: 4px solid #4a90d9 !important;
+        padding-left: 16px !important;
+        margin: 12px 0 !important;
+        color: #555 !important;
+        background: #f8f9fa !important;
+        padding: 12px 16px !important;
+        border-radius: 0 8px 8px 0 !important;
+    }
+    
+    .ql-editor pre.ql-syntax {
+        background: #1a1a2e !important;
+        color: #f0f2f5 !important;
+        padding: 16px !important;
+        border-radius: 8px !important;
+        font-family: 'Courier New', monospace !important;
+        font-size: 14px !important;
+        overflow-x: auto !important;
+    }
+    
+    .ql-editor a {
+        color: #4a90d9 !important;
+        text-decoration: underline !important;
+    }
+    
+    .ql-editor img {
+        max-width: 100% !important;
+        border-radius: 8px !important;
+        margin: 8px 0 !important;
+    }
+    
+    /* --- EDITOR FOOTER --- */
+    .editor-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 24px;
+        background: #fafbfc;
+        border-top: 1px solid #e8ecf0;
+        font-size: 13px;
+        color: #6c757d;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .editor-footer span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .editor-footer .word-count i,
+    .editor-footer .last-saved i {
+        color: #4a90d9;
+    }
+    
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+        .editor-header {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 16px;
+        }
+        .editor-header .header-left {
+            flex-wrap: wrap;
+        }
+        .editor-header .header-right {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        .ql-editor {
+            padding: 16px !important;
+        }
+        .editor-page {
+            padding: 10px;
+        }
+        .editor-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .editor-header .header-left .doc-title-input {
+            font-size: 18px;
+            min-width: 120px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="editor-page">
+    <!-- HEADER -->
+    <div class="editor-header">
+        <div class="header-left">
+            <button class="back-btn" onclick="window.location.href='{{ url_for('documents.list_documents') }}'" title="Back to Documents">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <input type="text" class="doc-title-input" id="docTitle" value="{{ document.title }}" placeholder="Untitled Document">
+        </div>
+        <div class="header-right">
+            <span class="status-badge" id="statusBadge">
+                <span class="dot"></span>
+                <span id="statusText">Saved</span>
+            </span>
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('documents.share_document', doc_id=document.id) }}'">
+                <i class="fas fa-share-alt"></i> Share
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('documents.view_versions', doc_id=document.id) }}'" title="Version History">
+                <i class="fas fa-history"></i>
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('documents.list_documents') }}'" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- PRESENCE -->
+    <div class="presence-bar">
+        <span class="presence-label">
+            <i class="fas fa-circle"></i> Online:
+        </span>
+        <div class="presence-user">
+            <span class="avatar">{{ current_user.username[0].upper() }}</span>
+            <span>{{ current_user.username }}</span>
+            <span class="status-indicator"></span>
+        </div>
+        <div id="presence-others"></div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="editor-wrapper">
+        <div id="editor-container" 
+             data-doc-id="{{ document.id }}"
+             data-user-id="{{ current_user.id }}"
+             data-username="{{ current_user.username }}"
+             data-content="{{ document.content|tojson }}">
+        </div>
+        <div class="editor-footer">
+            <span class="word-count">
+                <i class="fas fa-file-alt"></i>
+                <span id="wordCount">0</span> words
+            </span>
+            <span class="last-saved">
+                <i class="fas fa-save"></i>
+                <span id="lastSaved">Auto-save enabled</span>
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Quill Editor JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const docId = {{ document.id }};
+    const userId = {{ current_user.id }};
+    const username = "{{ current_user.username }}";
+
+    // ============================================
+    // QUILL EDITOR
+    // ============================================
+    const quill = new Quill('#editor-container', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'align': [] }],
+                ['link', 'image'],
+                ['blockquote', 'code-block'],
+                ['clean']
+            ]
+        },
+        placeholder: 'Start writing your document...'
+    });
+
+    // Set initial content
+    const initialContent = {{ document.content|tojson }};
+    if (initialContent) {
+        quill.root.innerHTML = initialContent;
+    }
+
+    // ============================================
+    // WORD COUNT
+    // ============================================
+    function updateWordCount() {
+        const text = quill.getText().trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        document.getElementById('wordCount').textContent = words;
+    }
+    updateWordCount();
+
+    // ============================================
+    // AUTO-SAVE
+    // ============================================
+    let saveTimeout;
+    const statusText = document.getElementById('statusText');
+    const statusBadge = document.getElementById('statusBadge');
+    const lastSaved = document.getElementById('lastSaved');
+
+    function setStatus(status, message) {
+        statusBadge.className = 'status-badge ' + status;
+        statusText.textContent = message;
+    }
+
+    function updateLastSaved() {
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        lastSaved.textContent = 'Last saved: ' + time;
+    }
+
+    quill.on('text-change', function(delta, oldDelta, source) {
+        if (source === 'user') {
+            const content = quill.root.innerHTML;
+            updateWordCount();
+            setStatus('saving', 'Saving...');
+
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(function() {
+                fetch('/api/documents/' + docId + '/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: content })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'saved') {
+                        setStatus('', 'Saved');
+                        updateLastSaved();
+                    }
+                })
+                .catch(() => {
+                    setStatus('', 'Error saving');
+                });
+            }, 800);
+        }
+    });
+
+    // ============================================
+    // TITLE AUTO-SAVE
+    // ============================================
+    const titleInput = document.getElementById('docTitle');
+    let titleTimeout;
+
+    titleInput.addEventListener('input', function() {
+        const newTitle = this.value.trim() || 'Untitled';
+        document.title = newTitle + ' - Editor';
+
+        clearTimeout(titleTimeout);
+        titleTimeout = setTimeout(function() {
+            fetch('/api/documents/' + docId + '/rename', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: newTitle })
+            });
+        }, 1000);
+    });
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            const content = quill.root.innerHTML;
+            fetch('/api/documents/' + docId + '/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'saved') {
+                    setStatus('', 'Saved');
+                    updateLastSaved();
+                    showNotification('Document saved! ✅');
+                }
+            });
+        }
+    });
+
+    // ============================================
+    // NOTIFICATIONS
+    // ============================================
+    function showNotification(message) {
+        const container = document.querySelector('.flash-container');
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success';
+        alert.innerHTML = message + ' <button class="close-btn">&times;</button>';
+        container.appendChild(alert);
+
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            setTimeout(function() { alert.remove(); }, 300);
+        }, 2500);
+
+        alert.querySelector('.close-btn').addEventListener('click', function() {
+            alert.remove();
+        });
+    }
+
+    // ============================================
+    // SOCKET.IO (Real-time)
+    // ============================================
+    const socket = io();
+
+    socket.emit('join_document', { doc_id: docId });
+
+    socket.on('document_updated', function(data) {
+        const currentContent = quill.root.innerHTML;
+        if (data.content !== currentContent) {
+            quill.root.innerHTML = data.content;
+            updateWordCount();
+            updateLastSaved();
+            showNotification('✏️ Updated by ' + data.user);
+        }
+    });
+
+    // Presence
+    const presenceOthers = document.getElementById('presence-others');
+    const users = {};
+    users[userId] = username;
+
+    socket.on('user_joined', function(data) {
+        if (data.user_id !== userId) {
+            users[data.user_id] = data.username;
+            renderPresence();
+        }
+    });
+
+    socket.on('user_left', function(data) {
+        if (data.user_id !== userId) {
+            delete users[data.user_id];
+            renderPresence();
+        }
+    });
+
+    function renderPresence() {
+        let html = '';
+        for (let id in users) {
+            if (id != userId) {
+                const name = users[id];
+                html += 
+                    <div class="presence-user">
+                        <span class="avatar"></span>
+                        <span></span>
+                        <span class="status-indicator"></span>
+                    </div>
+                ;
+            }
+        }
+        presenceOthers.innerHTML = html;
+    }
+
+    window.addEventListener('beforeunload', function() {
+        socket.emit('leave_document', { doc_id: docId });
+    });
+
+    // ============================================
+    // INIT
+    // ============================================
+    updateLastSaved();
+
+    // ============================================
+    // AUTO-SAVE ON TITLE CHANGE
+    // ============================================
+    titleInput.addEventListener('focus', function() {
+        this.select();
+    });
+</script>
+{% endblock %}
