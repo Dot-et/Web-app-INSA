@@ -16,7 +16,7 @@ from models import db, User, UserSession
 
 # Import routes and websocket
 from routes.documents import documents_bp
-from websocket import socketio
+from websocket import socketio  # ← THIS IS THE CORRECT IMPORT
 
 # Load environment variables
 load_dotenv()
@@ -334,19 +334,11 @@ def revoke_session(session_id):
     flash('Session revoked successfully.', 'success')
     return redirect(url_for('sessions'))
 
-# ============================================
-# LOGOUT ROUTES
-# ============================================
-
 @app.route('/logout')
 @login_required
 def logout():
-    """Logout current user"""
-    # Get current session ID
     session_id = session.get('_session_id')
-    
     if session_id:
-        # Find and deactivate the session
         user_session = UserSession.query.filter_by(
             session_id=session_id,
             user_id=current_user.id
@@ -355,15 +347,9 @@ def logout():
             user_session.is_active = False
             db.session.commit()
     
-    # Clear Flask session completely
     session.clear()
-    
-    # Logout user
     logout_user()
-    
     flash('You have been logged out.', 'info')
-    
-    # Redirect to home with cache control
     response = redirect(url_for('index'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
@@ -373,23 +359,14 @@ def logout():
 @app.route('/logout_all')
 @login_required
 def logout_all():
-    """Logout from all devices"""
-    # Deactivate all sessions for this user
     UserSession.query.filter_by(
         user_id=current_user.id,
         is_active=True
     ).update({'is_active': False})
     db.session.commit()
-    
-    # Clear Flask session
     session.clear()
-    
-    # Logout user
     logout_user()
-    
     flash('Logged out from all devices.', 'info')
-    
-    # Redirect with cache control
     response = redirect(url_for('index'))
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'

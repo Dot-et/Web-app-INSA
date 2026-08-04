@@ -3,7 +3,8 @@
 {% block title %}{{ document.title }} - Editor{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
     /* ============================================
@@ -16,7 +17,7 @@
         gap: 12px;
     }
     
-    /* ===== HEADER ===== */
+    /* ---- HEADER ---- */
     .editor-header {
         background: #ffffff;
         padding: 12px 20px;
@@ -81,7 +82,7 @@
         flex-wrap: wrap;
     }
     
-    /* ===== STATUS ===== */
+    /* ---- STATUS ---- */
     .status {
         font-size: 13px;
         color: #6c757d;
@@ -116,7 +117,7 @@
         50% { opacity: 0.5; transform: scale(0.7); }
     }
     
-    /* ===== BUTTONS ===== */
+    /* ---- BUTTONS ---- */
     .btn {
         padding: 6px 14px;
         border: none;
@@ -152,7 +153,7 @@
         background: #e5e8ec;
     }
     
-    /* ===== TOOLBAR ===== */
+    /* ---- TOOLBAR ---- */
     .toolbar-wrapper {
         background: #ffffff;
         padding: 8px 12px;
@@ -222,7 +223,7 @@
         border-color: #4a90d9;
     }
     
-    /* ===== EDITOR ===== */
+    /* ---- EDITOR ---- */
     .editor-wrapper {
         background: #ffffff;
         border-radius: 0 0 10px 10px;
@@ -238,78 +239,7 @@
         color: #1a1a2e;
     }
     
-    #editor h1 {
-        font-size: 30px;
-        font-weight: 700;
-        color: #1a1a2e;
-        margin: 24px 0 16px;
-    }
-    
-    #editor h2 {
-        font-size: 24px;
-        font-weight: 600;
-        color: #1a1a2e;
-        margin: 20px 0 12px;
-    }
-    
-    #editor h3 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #1a1a2e;
-        margin: 16px 0 10px;
-    }
-    
-    #editor blockquote {
-        border-left: 4px solid #4a90d9;
-        padding: 12px 16px;
-        margin: 12px 0;
-        color: #5f6368;
-        background: #f8f9fa;
-        border-radius: 0 8px 8px 0;
-    }
-    
-    #editor pre {
-        background: #1a1a2e;
-        color: #f0f2f5;
-        padding: 16px;
-        border-radius: 8px;
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        overflow-x: auto;
-    }
-    
-    #editor a {
-        color: #4a90d9;
-        text-decoration: underline;
-    }
-    
-    #editor img {
-        max-width: 100%;
-        border-radius: 8px;
-        margin: 8px 0;
-    }
-    
-    /* ===== FOOTER ===== */
-    .editor-footer {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 20px;
-        background: #fafbfc;
-        border-top: 1px solid #e8ecf0;
-        border-radius: 0 0 10px 10px;
-        font-size: 13px;
-        color: #6c757d;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
-    .editor-footer span {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    /* ===== PRESENCE ===== */
+    /* ---- PRESENCE BAR ---- */
     .presence-bar {
         background: #ffffff;
         border-radius: 10px;
@@ -320,6 +250,7 @@
         gap: 10px;
         flex-wrap: wrap;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
     }
     
     .presence-bar .presence-label {
@@ -331,6 +262,11 @@
         gap: 6px;
     }
     
+    .presence-bar .presence-label i {
+        color: #2ecc71;
+        font-size: 10px;
+    }
+    
     .presence-bar .presence-user {
         display: flex;
         align-items: center;
@@ -340,6 +276,7 @@
         border-radius: 24px;
         font-size: 13px;
         border: 1px solid #e8ecf0;
+        transition: all 0.3s ease;
     }
     
     .presence-bar .presence-user .avatar {
@@ -369,7 +306,7 @@
         flex-wrap: wrap;
     }
     
-    /* ===== COMMENTS ===== */
+    /* ---- COMMENTS SECTION ---- */
     .comments-section {
         background: #ffffff;
         border-radius: 10px;
@@ -514,7 +451,27 @@
         display: block;
     }
     
-    /* ===== RESPONSIVE ===== */
+    /* ---- FOOTER ---- */
+    .editor-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 20px;
+        background: #fafbfc;
+        border-top: 1px solid #e8ecf0;
+        border-radius: 0 0 10px 10px;
+        font-size: 13px;
+        color: #6c757d;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .editor-footer span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    /* ---- RESPONSIVE ---- */
     @media (max-width: 768px) {
         .editor-header {
             flex-direction: column;
@@ -565,7 +522,9 @@
 
 <div class="editor-page">
 
-    <!-- ===== HEADER ===== -->
+    <!-- ============================================
+    HEADER
+    ============================================ -->
     <div class="editor-header">
         <div class="header-left">
             <button class="back-btn" onclick="window.location.href='{{ url_for('documents.list_documents') }}'">←</button>
@@ -585,7 +544,22 @@
         </div>
     </div>
 
-    <!-- ===== TOOLBAR ===== -->
+    <!-- ============================================
+    PRESENCE BAR
+    ============================================ -->
+    <div class="presence-bar">
+        <span class="presence-label"><i class="fas fa-circle"></i> Online:</span>
+        <div class="presence-user">
+            <span class="avatar">{{ current_user.username[0].upper() }}</span>
+            <span>{{ current_user.username }}</span>
+            <span class="status-indicator"></span>
+        </div>
+        <div id="presence-others"></div>
+    </div>
+
+    <!-- ============================================
+    TOOLBAR
+    ============================================ -->
     <div class="toolbar-wrapper">
         <div id="toolbar">
             <span class="ql-formats">
@@ -620,30 +594,25 @@
         </div>
     </div>
 
-    <!-- ===== PRESENCE ===== -->
-    <div class="presence-bar">
-        <span class="presence-label"><i class="fas fa-circle" style="color:#2ecc71;font-size:8px;"></i> Online:</span>
-        <div class="presence-user">
-            <span class="avatar">{{ current_user.username[0].upper() }}</span>
-            <span>{{ current_user.username }}</span>
-            <span class="status-indicator"></span>
-        </div>
-        <div id="presence-others"></div>
-    </div>
-
-    <!-- ===== EDITOR ===== -->
+    <!-- ============================================
+    EDITOR
+    ============================================ -->
     <div class="editor-wrapper">
         <div id="editor">{{ document.content|safe }}</div>
     </div>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- ============================================
+    FOOTER
+    ============================================ -->
     <div class="editor-footer">
         <span><i class="fas fa-file-alt"></i> <span id="wordCount">0</span> words</span>
         <span><i class="fas fa-user"></i> {{ current_user.username }}</span>
         <span id="lastSaved"><i class="fas fa-save"></i> Auto-save enabled</span>
     </div>
 
-    <!-- ===== COMMENTS ===== -->
+    <!-- ============================================
+    COMMENTS SECTION
+    ============================================ -->
     <div class="comments-section">
         <div class="comments-header">
             <h3><i class="fas fa-comment" style="color: #4a90d9;"></i> Comments <span class="badge" id="commentCount">{{ comments|length if comments else 0 }}</span></h3>
@@ -696,7 +665,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <script>
@@ -705,9 +674,6 @@
     // ============================================
     const socket = io();
 
-    // ============================================
-    // CONFIGURATION
-    // ============================================
     const docId = {{ document.id }};
     const userId = {{ current_user.id }};
     const username = "{{ current_user.username }}";
@@ -721,6 +687,12 @@
         placeholder: 'Start writing your document...'
     });
 
+    // Set initial content
+    const initialContent = {{ document.content|tojson }};
+    if (initialContent) {
+        quill.root.innerHTML = initialContent;
+    }
+
     // ============================================
     // WORD COUNT
     // ============================================
@@ -733,7 +705,7 @@
     updateWordCount();
 
     // ============================================
-    // AUTO-SAVE
+    // AUTO-SAVE - FIXED URL
     // ============================================
     let saveTimeout = null;
     const statusText = document.getElementById('statusText');
@@ -758,6 +730,7 @@
 
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(function() {
+                // ✅ FIXED: Correct URL with /documents/
                 fetch('/documents/' + docId + '/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -778,7 +751,7 @@
     });
 
     // ============================================
-    // TITLE AUTO-SAVE
+    // TITLE AUTO-SAVE - FIXED URL
     // ============================================
     const titleInput = document.getElementById('docTitle');
     let titleTimeout = null;
@@ -789,6 +762,7 @@
 
         clearTimeout(titleTimeout);
         titleTimeout = setTimeout(function() {
+            // ✅ FIXED: Correct URL with /documents/
             fetch('/documents/' + docId + '/api/rename', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -796,6 +770,103 @@
             });
         }, 1000);
     });
+
+    // ============================================
+    // REAL-TIME COLLABORATION
+    // ============================================
+
+    // 1. JOIN DOCUMENT ROOM
+    socket.emit('join_document', { doc_id: docId });
+
+    // 2. SEND CHANGES TO OTHERS
+    quill.on('text-change', function(delta, oldDelta, source) {
+        if (source === 'user') {
+            const content = quill.root.innerHTML;
+            socket.emit('document_change', {
+                doc_id: docId,
+                content: content
+            });
+        }
+    });
+
+    // 3. RECEIVE CHANGES FROM OTHERS
+    socket.on('document_updated', function(data) {
+        const currentContent = quill.root.innerHTML;
+        
+        if (data.content !== currentContent) {
+            quill.root.innerHTML = data.content;
+            updateWordCount();
+            updateLastSaved();
+            
+            // Only show notification for OTHER users
+            if (data.user !== username) {
+                showNotification('✏️ Updated by ' + data.user);
+            }
+        }
+    });
+
+    // ============================================
+    // PRESENCE (Online Users)
+    // ============================================
+
+    const presenceOthers = document.getElementById('presence-others');
+    const users = {};
+    users[userId] = username;
+
+    socket.on('user_joined', function(data) {
+        if (data.user_id !== userId) {
+            users[data.user_id] = data.username;
+            renderPresence();
+            showNotification('👤 ' + data.username + ' joined');
+        }
+    });
+
+    socket.on('user_left', function(data) {
+        if (data.user_id !== userId) {
+            delete users[data.user_id];
+            renderPresence();
+            showNotification('👤 ' + data.username + ' left');
+        }
+    });
+
+    function renderPresence() {
+        let html = '';
+        for (let id in users) {
+            if (id != userId) {
+                const name = users[id];
+                html += `
+                    <div class="presence-user">
+                        <span class="avatar">${name[0].toUpperCase()}</span>
+                        <span>${name}</span>
+                        <span class="status-indicator"></span>
+                    </div>
+                `;
+            }
+        }
+        presenceOthers.innerHTML = html;
+    }
+
+    // ============================================
+    // NOTIFICATIONS
+    // ============================================
+    function showNotification(message) {
+        const container = document.querySelector('.flash-container');
+        if (!container) return;
+        
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-info';
+        alert.innerHTML = message + ' <button class="close-btn">&times;</button>';
+        container.appendChild(alert);
+
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            setTimeout(function() { alert.remove(); }, 300);
+        }, 3000);
+
+        alert.querySelector('.close-btn').addEventListener('click', function() {
+            alert.remove();
+        });
+    }
 
     // ============================================
     // KEYBOARD SHORTCUTS
@@ -824,128 +895,7 @@
     });
 
     // ============================================
-    // SOCKET.IO - JOIN DOCUMENT
-    // ============================================
-    socket.emit('join_document', { doc_id: docId });
-
-    // ============================================
-    // SOCKET.IO - REAL-TIME UPDATES
-    // ============================================
-    socket.on('document_updated', function(data) {
-        const currentContent = quill.root.innerHTML;
-        if (data.content !== currentContent) {
-            quill.root.innerHTML = data.content;
-            updateWordCount();
-            updateLastSaved();
-            showNotification('✏️ Updated by ' + data.user);
-        }
-    });
-
-    // ============================================
-    // SOCKET.IO - PRESENCE
-    // ============================================
-    const presenceOthers = document.getElementById('presence-others');
-    const users = {};
-    users[userId] = username;
-
-    socket.on('user_joined', function(data) {
-        if (data.user_id !== userId) {
-            users[data.user_id] = data.username;
-            renderPresence();
-        }
-    });
-
-    socket.on('user_left', function(data) {
-        if (data.user_id !== userId) {
-            delete users[data.user_id];
-            renderPresence();
-        }
-    });
-
-    function renderPresence() {
-        let html = '';
-        for (let id in users) {
-            if (id != userId) {
-                const name = users[id];
-                html += `
-                    <div class="presence-user">
-                        <span class="avatar">${name[0].toUpperCase()}</span>
-                        <span>${name}</span>
-                        <span class="status-indicator"></span>
-                    </div>
-                `;
-            }
-        }
-        presenceOthers.innerHTML = html;
-    }
-
-    // ============================================
-    // SOCKET.IO - CURSOR TRACKING
-    // ============================================
-    function getCursorPosition() {
-        const editor = document.querySelector('.ql-editor');
-        if (!editor) return 0;
-        
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const preSelectionRange = range.cloneRange();
-            preSelectionRange.selectNodeContents(editor);
-            preSelectionRange.setEnd(range.startContainer, range.startOffset);
-            return preSelectionRange.toString().length;
-        }
-        return 0;
-    }
-
-    let cursorTimeout;
-    document.addEventListener('selectionchange', function() {
-        clearTimeout(cursorTimeout);
-        cursorTimeout = setTimeout(function() {
-            const position = getCursorPosition();
-            socket.emit('cursor_update', {
-                doc_id: docId,
-                position: position
-            });
-        }, 100);
-    });
-
-    // ============================================
-    // SOCKET.IO - TYPING INDICATORS
-    // ============================================
-    let typingTimeout;
-
-    quill.on('text-change', function() {
-        socket.emit('typing', { doc_id: docId });
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(function() {
-            socket.emit('stop_typing', { doc_id: docId });
-        }, 1000);
-    });
-
-    // ============================================
-    // NOTIFICATIONS
-    // ============================================
-    function showNotification(message) {
-        const container = document.querySelector('.flash-container');
-        if (!container) return;
-        
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-info';
-        alert.innerHTML = message + ' <button class="close-btn">&times;</button>';
-        container.appendChild(alert);
-
-        setTimeout(function() {
-            alert.style.opacity = '0';
-            setTimeout(function() { alert.remove(); }, 300);
-        }, 2500);
-
-        alert.querySelector('.close-btn').addEventListener('click', function() {
-            alert.remove();
-        });
-    }
-
-    // ============================================
-    // CLEANUP
+    // CLEANUP ON UNLOAD
     // ============================================
     window.addEventListener('beforeunload', function() {
         socket.emit('leave_document', { doc_id: docId });

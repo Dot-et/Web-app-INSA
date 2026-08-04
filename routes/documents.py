@@ -12,7 +12,6 @@ documents_bp = Blueprint('documents', __name__)
 @documents_bp.route('/')
 @login_required
 def list_documents():
-    """Show user's documents"""
     owned = Document.query.filter_by(owner_id=current_user.id, is_deleted=False).all()
     shared = Document.query.join(DocumentCollaborator).filter(
         DocumentCollaborator.user_id == current_user.id
@@ -22,7 +21,6 @@ def list_documents():
 @documents_bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def create_document():
-    """Create a new document"""
     if request.method == 'POST':
         title = request.form.get('title', 'Untitled')
         doc = Document(title=title, owner_id=current_user.id, content='')
@@ -35,10 +33,8 @@ def create_document():
 @documents_bp.route('/<int:doc_id>')
 @login_required
 def edit_document(doc_id):
-    """Edit a document"""
     doc = Document.query.get_or_404(doc_id)
     
-    # Check permissions
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
             document_id=doc_id, user_id=current_user.id
@@ -47,7 +43,6 @@ def edit_document(doc_id):
             flash('You don\'t have access to this document.', 'danger')
             return redirect(url_for('documents.list_documents'))
     
-    # Get comments for this document
     comments = Comment.query.filter_by(document_id=doc_id, parent_id=None).order_by(
         Comment.created_at.asc()
     ).all()
@@ -57,7 +52,6 @@ def edit_document(doc_id):
 @documents_bp.route('/<int:doc_id>/rename', methods=['POST'])
 @login_required
 def rename_document(doc_id):
-    """Rename a document"""
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id:
         flash('Only the owner can rename this document.', 'danger')
@@ -73,7 +67,6 @@ def rename_document(doc_id):
 @documents_bp.route('/<int:doc_id>/delete', methods=['POST'])
 @login_required
 def delete_document(doc_id):
-    """Soft delete a document"""
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id:
         flash('Only the owner can delete this document.', 'danger')
@@ -87,7 +80,6 @@ def delete_document(doc_id):
 @documents_bp.route('/<int:doc_id>/duplicate', methods=['POST'])
 @login_required
 def duplicate_document(doc_id):
-    """Duplicate a document"""
     original = Document.query.get_or_404(doc_id)
     new_doc = Document(
         title=f"{original.title} (Copy)",
@@ -106,7 +98,6 @@ def duplicate_document(doc_id):
 @documents_bp.route('/<int:doc_id>/share', methods=['GET', 'POST'])
 @login_required
 def share_document(doc_id):
-    """Share document with other users"""
     doc = Document.query.get_or_404(doc_id)
     if doc.owner_id != current_user.id:
         flash('Only the owner can share this document.', 'danger')
@@ -145,7 +136,6 @@ def share_document(doc_id):
 @documents_bp.route('/<int:doc_id>/versions')
 @login_required
 def view_versions(doc_id):
-    """View document version history"""
     doc = Document.query.get_or_404(doc_id)
     versions = DocumentVersion.query.filter_by(document_id=doc_id).order_by(
         DocumentVersion.created_at.desc()
@@ -155,7 +145,6 @@ def view_versions(doc_id):
 @documents_bp.route('/<int:doc_id>/versions/<int:version_id>/restore', methods=['POST'])
 @login_required
 def restore_version(doc_id, version_id):
-    """Restore a previous version"""
     doc = Document.query.get_or_404(doc_id)
     version = DocumentVersion.query.get_or_404(version_id)
     
@@ -176,10 +165,8 @@ def restore_version(doc_id, version_id):
 @documents_bp.route('/<int:doc_id>/comments', methods=['POST'])
 @login_required
 def add_comment(doc_id):
-    """Add a comment to a document"""
     doc = Document.query.get_or_404(doc_id)
     
-    # Check permissions
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
             document_id=doc_id, user_id=current_user.id
@@ -209,11 +196,9 @@ def add_comment(doc_id):
 @documents_bp.route('/comments/<int:comment_id>/resolve', methods=['POST'])
 @login_required
 def resolve_comment(comment_id):
-    """Resolve a comment"""
     comment = Comment.query.get_or_404(comment_id)
-    
-    # Only the comment author or document owner can resolve
     doc = Document.query.get(comment.document_id)
+    
     if comment.user_id != current_user.id and doc.owner_id != current_user.id:
         flash('You cannot resolve this comment.', 'danger')
         return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
@@ -226,10 +211,8 @@ def resolve_comment(comment_id):
 @documents_bp.route('/comments/<int:comment_id>/delete', methods=['POST'])
 @login_required
 def delete_comment(comment_id):
-    """Delete a comment"""
     comment = Comment.query.get_or_404(comment_id)
     
-    # Only the comment author can delete
     if comment.user_id != current_user.id:
         flash('You cannot delete this comment.', 'danger')
         return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
@@ -240,7 +223,7 @@ def delete_comment(comment_id):
     return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
 
 # ============================================
-# API ROUTES (for auto-save)
+# API ROUTES (FIXED)
 # ============================================
 
 @documents_bp.route('/<int:doc_id>/api/save', methods=['POST'])
@@ -249,12 +232,12 @@ def api_save_document(doc_id):
     """API endpoint for auto-saving documents"""
     doc = Document.query.get_or_404(doc_id)
     
-    # Check permissions
+    # ✅ FIXED: Allow owner OR collaborators with edit permission
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
             document_id=doc_id, user_id=current_user.id
         ).first()
-        if not collaborator or collaborator.permission == 'viewer':
+        if not collaborator or collaborator.permission not in ['editor', 'commenter']:
             return jsonify({'error': 'Permission denied'}), 403
     
     data = request.get_json()
