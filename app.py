@@ -1,7 +1,7 @@
 # app.py - Complete Flask Application
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
@@ -122,6 +122,12 @@ app.register_blueprint(documents_bp, url_prefix='/documents')
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        from models import Document
+        recent_docs = Document.query.filter_by(owner_id=current_user.id, is_deleted=False).order_by(
+            Document.updated_at.desc()
+        ).limit(5).all()
+        return render_template('index.html', recent_docs=recent_docs)
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -328,11 +334,19 @@ def revoke_session(session_id):
     flash('Session revoked successfully.', 'success')
     return redirect(url_for('sessions'))
 
+# ============================================
+# LOGOUT ROUTES
+# ============================================
+
 @app.route('/logout')
 @login_required
 def logout():
+    """Logout current user"""
+    # Get current session ID
     session_id = session.get('_session_id')
+    
     if session_id:
+        # Find and deactivate the session
         user_session = UserSession.query.filter_by(
             session_id=session_id,
             user_id=current_user.id
@@ -341,67 +355,46 @@ def logout():
             user_session.is_active = False
             db.session.commit()
     
-    logout_user()
+    # Clear Flask session completely
     session.clear()
+    
+    # Logout user
+    logout_user()
+    
     flash('You have been logged out.', 'info')
-    return redirect(url_for('index'))
+    
+    # Redirect to home with cache control
+    response = redirect(url_for('index'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/logout_all')
 @login_required
 def logout_all():
+    """Logout from all devices"""
+    # Deactivate all sessions for this user
     UserSession.query.filter_by(
         user_id=current_user.id,
         is_active=True
     ).update({'is_active': False})
     db.session.commit()
-    logout_user()
+    
+    # Clear Flask session
     session.clear()
+    
+    # Logout user
+    logout_user()
+    
     flash('Logged out from all devices.', 'info')
-    return redirect(url_for('index'))
-
-# ============================================
-# API ENDPOINTS
-# ============================================
-
-@app.route('/api/documents/<int:doc_id>/save', methods=['POST'])
-@login_required
-def save_document(doc_id):
-    """API endpoint for auto-saving documents"""
-    from models import Document, DocumentCollaborator
-    doc = Document.query.get_or_404(doc_id)
     
-    # Check permissions
-    if doc.owner_id != current_user.id:
-        collaborator = DocumentCollaborator.query.filter_by(
-            document_id=doc_id, user_id=current_user.id
-        ).first()
-        if not collaborator or collaborator.permission not in ['editor', 'commenter']:
-            return jsonify({'error': 'Permission denied'}), 403
-    
-    data = request.get_json()
-    if data:
-        doc.content = data.get('content', '')
-        doc.updated_at = datetime.utcnow()
-        db.session.commit()
-        return jsonify({'status': 'saved'})
-    return jsonify({'error': 'No data provided'}), 400
-
-@app.route('/api/documents/<int:doc_id>/rename', methods=['POST'])
-@login_required
-def rename_document_api(doc_id):
-    """API endpoint for renaming documents"""
-    from models import Document
-    doc = Document.query.get_or_404(doc_id)
-    
-    if doc.owner_id != current_user.id:
-        return jsonify({'error': 'Only the owner can rename'}), 403
-    
-    data = request.get_json()
-    if data:
-        doc.title = data.get('title', 'Untitled')
-        db.session.commit()
-        return jsonify({'status': 'renamed'})
-    return jsonify({'error': 'No data provided'}), 400
+    # Redirect with cache control
+    response = redirect(url_for('index'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # ============================================
 # ERROR HANDLERS

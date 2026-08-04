@@ -5,6 +5,10 @@ from datetime import datetime
 
 documents_bp = Blueprint('documents', __name__)
 
+# ============================================
+# DOCUMENT MANAGEMENT ROUTES
+# ============================================
+
 @documents_bp.route('/')
 @login_required
 def list_documents():
@@ -33,6 +37,7 @@ def create_document():
 def edit_document(doc_id):
     """Edit a document"""
     doc = Document.query.get_or_404(doc_id)
+    
     # Check permissions
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
@@ -41,7 +46,13 @@ def edit_document(doc_id):
         if not collaborator:
             flash('You don\'t have access to this document.', 'danger')
             return redirect(url_for('documents.list_documents'))
-    return render_template('editor.html', document=doc)
+    
+    # Get comments for this document
+    comments = Comment.query.filter_by(document_id=doc_id, parent_id=None).order_by(
+        Comment.created_at.asc()
+    ).all()
+    
+    return render_template('editor.html', document=doc, comments=comments)
 
 @documents_bp.route('/<int:doc_id>/rename', methods=['POST'])
 @login_required
@@ -88,6 +99,10 @@ def duplicate_document(doc_id):
     flash('Document duplicated!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=new_doc.id))
 
+# ============================================
+# SHARING ROUTES
+# ============================================
+
 @documents_bp.route('/<int:doc_id>/share', methods=['GET', 'POST'])
 @login_required
 def share_document(doc_id):
@@ -123,6 +138,10 @@ def share_document(doc_id):
     collaborators = DocumentCollaborator.query.filter_by(document_id=doc_id).all()
     return render_template('share.html', document=doc, collaborators=collaborators)
 
+# ============================================
+# VERSION HISTORY ROUTES
+# ============================================
+
 @documents_bp.route('/<int:doc_id>/versions')
 @login_required
 def view_versions(doc_id):
@@ -150,22 +169,41 @@ def restore_version(doc_id, version_id):
     flash('Version restored!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=doc_id))
 
+# ============================================
+# COMMENTS ROUTES
+# ============================================
+
 @documents_bp.route('/<int:doc_id>/comments', methods=['POST'])
 @login_required
 def add_comment(doc_id):
     """Add a comment to a document"""
     doc = Document.query.get_or_404(doc_id)
-    content = request.form.get('content')
     
-    if content:
-        comment = Comment(
-            document_id=doc_id,
-            user_id=current_user.id,
-            content=content
-        )
-        db.session.add(comment)
-        db.session.commit()
-        flash('Comment added!', 'success')
+    # Check permissions
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator or collaborator.permission == 'viewer':
+            flash('You don\'t have permission to comment.', 'danger')
+            return redirect(url_for('documents.edit_document', doc_id=doc_id))
+    
+    content = request.form.get('content')
+    parent_id = request.form.get('parent_id')
+    
+    if not content:
+        flash('Comment cannot be empty.', 'danger')
+        return redirect(url_for('documents.edit_document', doc_id=doc_id))
+    
+    comment = Comment(
+        document_id=doc_id,
+        user_id=current_user.id,
+        content=content,
+        parent_id=parent_id if parent_id else None
+    )
+    db.session.add(comment)
+    db.session.commit()
+    flash('Comment added!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=doc_id))
 
 @documents_bp.route('/comments/<int:comment_id>/resolve', methods=['POST'])
@@ -173,7 +211,72 @@ def add_comment(doc_id):
 def resolve_comment(comment_id):
     """Resolve a comment"""
     comment = Comment.query.get_or_404(comment_id)
+    
+    # Only the comment author or document owner can resolve
+    doc = Document.query.get(comment.document_id)
+    if comment.user_id != current_user.id and doc.owner_id != current_user.id:
+        flash('You cannot resolve this comment.', 'danger')
+        return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
+    
     comment.resolved = True
     db.session.commit()
     flash('Comment resolved!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
+
+@documents_bp.route('/comments/<int:comment_id>/delete', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    """Delete a comment"""
+    comment = Comment.query.get_or_404(comment_id)
+    
+    # Only the comment author can delete
+    if comment.user_id != current_user.id:
+        flash('You cannot delete this comment.', 'danger')
+        return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
+    
+    db.session.delete(comment)
+    db.session.commit()
+    flash('Comment deleted!', 'success')
+    return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
+
+# ============================================
+# API ROUTES (for auto-save)
+# ============================================
+
+@documents_bp.route('/<int:doc_id>/api/save', methods=['POST'])
+@login_required
+def api_save_document(doc_id):
+    """API endpoint for auto-saving documents"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Check permissions
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator or collaborator.permission == 'viewer':
+            return jsonify({'error': 'Permission denied'}), 403
+    
+    data = request.get_json()
+    if data:
+        doc.content = data.get('content', '')
+        doc.updated_at = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'status': 'saved'})
+    return jsonify({'error': 'No data provided'}), 400
+
+@documents_bp.route('/<int:doc_id>/api/rename', methods=['POST'])
+@login_required
+def api_rename_document(doc_id):
+    """API endpoint for renaming documents"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    if doc.owner_id != current_user.id:
+        return jsonify({'error': 'Only the owner can rename'}), 403
+    
+    data = request.get_json()
+    if data:
+        doc.title = data.get('title', 'Untitled')
+        db.session.commit()
+        return jsonify({'status': 'renamed'})
+    return jsonify({'error': 'No data provided'}), 400
