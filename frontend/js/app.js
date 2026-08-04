@@ -1,146 +1,91 @@
 ﻿/* ============================================
-   MAIN APP
+   MAIN APPLICATION
    ============================================ */
 
-// Wait for DOM to load
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize editor
-    const editorContainer = document.getElementById('editor-container');
-    if (editorContainer) {
-        const docId = parseInt(editorContainer.dataset.docId);
-        const userId = parseInt(editorContainer.dataset.userId);
-        const username = editorContainer.dataset.username;
-        const initialContent = editorContainer.dataset.content || '';
-        
-        // Initialize editor
-        const quill = initEditor('#editor-container', {
-            docId: docId,
-            userId: userId,
-            username: username,
-            content: initialContent,
-            placeholder: 'Start writing your document...'
-        });
-        
-        // Initialize auto-save
-        initAutoSave(quill, docId, {
-            onSaveStart: function() {
-                setStatus('saving', 'Saving...');
-            },
-            onSaveEnd: function() {
-                setStatus('', 'Saved');
-                updateLastSaved();
-            },
-            onError: function() {
-                setStatus('', 'Error saving');
-            }
-        });
-        
-        // Initialize shortcuts
-        initShortcuts({
-            save: function() {
-                const content = getEditorContent();
-                saveDocument(docId, content, function() {
-                    setStatus('', 'Saved');
-                    updateLastSaved();
-                    showNotification('Document saved! ✅');
-                });
-            },
-            bold: function() {
-                document.querySelector('.ql-bold')?.click();
-            },
-            italic: function() {
-                document.querySelector('.ql-italic')?.click();
-            },
-            underline: function() {
-                document.querySelector('.ql-underline')?.click();
-            },
-            versions: function() {
-                window.location.href = '/documents/' + docId + '/versions';
-            }
-        });
-        
-        // Initialize socket
-        initSocket({
-            onConnect: function() {
-                joinDocumentRoom(docId);
-            },
-            onDocumentUpdate: function(data) {
-                const currentContent = getEditorContent();
-                if (data.content !== currentContent) {
-                    setEditorContent(data.content);
-                    updateWordCount(quill, 'wordCount');
-                    showNotification('✏️ Updated by ' + data.user);
-                }
-            },
-            onUserJoined: function(data) {
-                addPresenceUser(data);
-            },
-            onUserLeft: function(data) {
-                removePresenceUser(data);
-            }
-        });
-        
-        // Title input handler
-        const titleInput = document.getElementById('docTitle');
-        if (titleInput) {
-            let titleTimeout;
-            titleInput.addEventListener('input', function() {
-                const newTitle = this.value.trim() || 'Untitled';
-                document.title = newTitle + ' - Editor';
-                
-                clearTimeout(titleTimeout);
-                titleTimeout = setTimeout(function() {
-                    saveTitle(docId, newTitle);
-                }, 1000);
-            });
-        }
-        
-        // Word count on load
-        updateWordCount(quill, 'wordCount');
-        updateLastSaved();
-    }
-});
-
-// Status badge functions
-function setStatus(status, message) {
-    const statusBadge = document.getElementById('statusBadge');
-    const statusText = document.getElementById('statusText');
-    if (!statusBadge || !statusText) return;
-    
-    statusBadge.className = 'status-badge ' + status;
-    statusText.textContent = message;
-}
-
-function updateLastSaved() {
-    const el = document.getElementById('lastSaved');
-    if (!el) return;
-    
-    const now = new Date();
-    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    el.textContent = 'Last saved: ' + time;
-}
-
-// Presence functions
-function addPresenceUser(data) {
-    const container = document.getElementById('presenceOthers');
+    const container = document.getElementById('editor-container');
     if (!container) return;
     
-    // Check if user already exists
-    const existing = document.getElementById('presence-' + data.user_id);
-    if (existing) return;
+    // Get data from container
+    const docId = parseInt(container.dataset.docId);
+    const userId = parseInt(container.dataset.userId);
+    const username = container.dataset.username;
+    const initialContent = container.dataset.content || '';
     
-    const div = document.createElement('div');
-    div.className = 'presence-user';
-    div.id = 'presence-' + data.user_id;
-    div.innerHTML = \
-        <span class="avatar">\</span>
-        <span>\</span>
-        <span class="status-indicator"></span>
-    \;
-    container.appendChild(div);
-}
-
-function removePresenceUser(data) {
-    const el = document.getElementById('presence-' + data.user_id);
-    if (el) el.remove();
-}
+    // Initialize Editor
+    const editor = new Editor({
+        docId: docId,
+        userId: userId,
+        username: username,
+        container: '#editor-container'
+    });
+    editor.setContent(initialContent);
+    
+    // Initialize Auto-Save
+    const autosave = new AutoSave({
+        docId: docId,
+        editor: editor,
+        onSaveStart: () => UI.setStatus('saving', 'Saving...'),
+        onSaveEnd: () => {
+            UI.setStatus('', 'Saved');
+            UI.updateLastSaved();
+        },
+        onError: () => UI.setStatus('', 'Error saving')
+    });
+    
+    // Initialize Real-Time
+    const realtime = new RealTime({
+        docId: docId,
+        editor: editor,
+        onUserJoined: (data) => UI.addPresenceUser(data),
+        onUserLeft: (data) => UI.removePresenceUser(data),
+        onUpdate: (data) => {
+            UI.updateWordCount(editor.getWordCount());
+            UI.updateLastSaved();
+            UI.showNotification('✏️ Updated by ' + data.user);
+        }
+    });
+    
+    // Update word count on changes
+    editor.on('text-change', () => {
+        UI.updateWordCount(editor.getWordCount());
+    });
+    
+    // Initial word count
+    UI.updateWordCount(editor.getWordCount());
+    UI.updateLastSaved();
+    
+    // Title auto-save
+    const titleInput = document.getElementById('docTitle');
+    let titleTimeout;
+    
+    if (titleInput) {
+        titleInput.addEventListener('input', function() {
+            const newTitle = this.value.trim() || 'Untitled';
+            document.title = newTitle + ' - Editor';
+            
+            clearTimeout(titleTimeout);
+            titleTimeout = setTimeout(() => {
+                fetch('/api/documents/' + docId + '/rename', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: newTitle })
+                });
+            }, 1000);
+        });
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            autosave.forceSave();
+            UI.showNotification('Document saved! ✅');
+        }
+    });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        realtime.leaveDocument();
+    });
+});

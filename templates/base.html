@@ -265,6 +265,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+<<<<<<< HEAD
     <!-- Navigation -->
     <nav class="navbar">
         <a href="/" class="brand">
@@ -290,6 +291,24 @@
                 <li><a href="/register" class="btn-register"><i class="fas fa-user-plus"></i> Register</a></li>
             {% endif %}
         </ul>
+=======
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="nav-brand">🔐 Secure Authentication System</a>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/sessions">Sessions</a></li>
+                    <li class="user-info">👤 {{ current_user.username }}</li>
+                    <li><a href="/logout" class="btn-logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register" class="btn-register">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+>>>>>>> c1d47b2765ecb14038ba5551dd0188a46fafece4
     </nav>
 
     <!-- Flash Messages -->

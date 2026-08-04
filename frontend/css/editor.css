@@ -1,94 +1,89 @@
 ﻿/* ============================================
-   EDITOR STYLES
+   PROFESSIONAL EDITOR STYLES
    ============================================ */
 
 .editor-page {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.editor-container-wrapper {
-    background: white;
+/* Editor Header */
+.editor-header {
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    overflow: hidden;
-    border: 1px solid #e8ecf0;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
 }
 
-.editor-container-wrapper .ql-editor {
-    padding: 32px 48px !important;
-    min-height: 500px;
+.editor-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.editor-header .header-left .back-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.editor-header .header-left .back-btn:hover {
+    background: #f0f2f5;
     color: #1a1a2e;
-    font-size: 16px;
-    line-height: 1.8;
 }
 
-.editor-container-wrapper .ql-editor:focus {
+.editor-header .header-left .doc-title-input {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a2e;
+    border: none;
+    background: transparent;
+    padding: 8px 14px;
+    border-radius: 10px;
+    min-width: 180px;
     outline: none;
+    transition: background 0.3s ease;
+    flex: 1;
+    font-family: inherit;
 }
 
-.editor-container-wrapper .ql-editor h1 {
-    font-size: 32px !important;
-    font-weight: 700 !important;
-    color: #1a1a2e !important;
-    margin: 24px 0 16px !important;
-    letter-spacing: -0.5px !important;
+.editor-header .header-left .doc-title-input:hover {
+    background: #f8f9fa;
 }
 
-.editor-container-wrapper .ql-editor h2 {
-    font-size: 26px !important;
-    font-weight: 600 !important;
-    color: #1a1a2e !important;
-    margin: 20px 0 12px !important;
+.editor-header .header-left .doc-title-input:focus {
+    background: #f0f2f5;
 }
 
-.editor-container-wrapper .ql-editor h3 {
-    font-size: 20px !important;
-    font-weight: 600 !important;
-    color: #1a1a2e !important;
-    margin: 16px 0 10px !important;
+.editor-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
-.editor-container-wrapper .ql-editor p {
-    margin: 8px 0 !important;
-    line-height: 1.8 !important;
-}
-
-.editor-container-wrapper .ql-editor ul,
-.editor-container-wrapper .ql-editor ol {
-    padding-left: 24px !important;
-    margin: 8px 0 !important;
-}
-
-.editor-container-wrapper .ql-editor blockquote {
-    border-left: 4px solid #1a73e8 !important;
-    padding: 12px 16px !important;
-    margin: 12px 0 !important;
-    color: #5f6368 !important;
-    background: #f8f9fa !important;
-    border-radius: 0 8px 8px 0 !important;
-}
-
-.editor-container-wrapper .ql-editor pre.ql-syntax {
-    background: #1a1a2e !important;
-    color: #f0f2f5 !important;
-    padding: 16px !important;
-    border-radius: 8px !important;
-    font-family: 'Courier New', monospace !important;
-    font-size: 14px !important;
-    overflow-x: auto !important;
-}
-
-.editor-container-wrapper .ql-editor a {
-    color: #1a73e8 !important;
-    text-decoration: underline !important;
-}
-
-.editor-container-wrapper .ql-editor img {
-    max-width: 100% !important;
-    border-radius: 8px !important;
-    margin: 8px 0 !important;
+/* Editor Container */
+.editor-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.04);
 }
 
 /* Editor Footer */
@@ -96,11 +91,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 12px 24px;
     background: #fafbfc;
     border-top: 1px solid #e8ecf0;
     font-size: 13px;
-    color: #5f6368;
+    color: #6c757d;
     flex-wrap: wrap;
     gap: 8px;
 }
@@ -108,5 +103,29 @@
 .editor-footer span {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .editor-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+    }
+    .editor-header .header-left {
+        flex-wrap: wrap;
+    }
+    .editor-header .header-right {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    .editor-page {
+        padding: 10px;
+    }
+    .editor-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
 }
