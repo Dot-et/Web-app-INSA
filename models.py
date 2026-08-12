@@ -87,6 +87,29 @@ class User(UserMixin, db.Model):
         self.last_ip = ip_address
         self.last_user_agent = user_agent
         db.session.commit()
+    
+    # ============================================
+    # ADDITIONAL HELPER METHODS
+    # ============================================
+    
+    def get_id(self):
+        """Return user ID as string for Flask-Login"""
+        return str(self.id)
+    
+    @property
+    def is_authenticated(self):
+        """Return True if user is authenticated"""
+        return True
+    
+    @property
+    def is_active_property(self):
+        """Return True if user account is active"""
+        return self.is_active
+    
+    @property
+    def is_anonymous(self):
+        """Return False as this is not an anonymous user"""
+        return False
 
 
 # ============================================

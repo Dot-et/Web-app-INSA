@@ -2,7 +2,6 @@
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
 import re
@@ -10,6 +9,8 @@ import secrets
 import os
 import requests
 from dotenv import load_dotenv
+import bcrypt
+import string
 
 # Import from models
 from models import db, User, UserSession
@@ -32,24 +33,28 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
+# Google OAuth Configuration
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
+
 # ============================================
 # INITIALIZE DATABASE WITH APP
 # ============================================
 db.init_app(app)
 
 # ============================================
-# GOOGLE OAUTH CONFIGURATION
+# OAUTH CONFIGURATION - FIXED
 # ============================================
-app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
-app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
-
 oauth = OAuth(app)
 
 google = oauth.register(
     name='google',
     client_id=app.config['GOOGLE_CLIENT_ID'],
     client_secret=app.config['GOOGLE_CLIENT_SECRET'],
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    access_token_url='https://oauth2.googleapis.com/token',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',
+    jwks_uri='https://www.googleapis.com/oauth2/v3/certs',  # ADD THIS LINE
     client_kwargs={
         'scope': 'openid email profile'
     }
@@ -210,56 +215,80 @@ def register():
     
     return render_template('register.html')
 
-@app.route('/google-login')
+@app.route('/login/google')
 def google_login():
-    redirect_uri = url_for('google_callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/google-callback')
-def google_callback():
+    """Initiate Google OAuth login"""
+    redirect_uri = 'http://127.0.0.1:4000/callback'
+    print(f"🔑 Redirect URI: {redirect_uri}")
+    
     try:
+        return google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        print(f"❌ OAuth Error: {e}")
+        flash('Failed to initiate Google login. Please try again.', 'danger')
+        return redirect(url_for('login'))
+
+@app.route('/callback')
+def google_callback():
+    """Handle the callback from Google after authorization"""
+    try:
+        # Get the access token
         token = google.authorize_access_token()
-        headers = {'Authorization': f'Bearer {token["access_token"]}'}
-        response = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers=headers)
+        print(f"✅ Token received: {token.keys()}")
         
-        if response.status_code != 200:
+        # Get user info using the access token
+        resp = requests.get(
+            'https://openidconnect.googleapis.com/v1/userinfo',
+            headers={'Authorization': f'Bearer {token["access_token"]}'}
+        )
+        
+        if resp.status_code != 200:
             flash('Failed to get user info from Google', 'danger')
             return redirect(url_for('login'))
         
-        user_info = response.json()
-        email = user_info.get('email')
-        name = user_info.get('name', email.split('@')[0] if email else 'User')
-        google_id = user_info.get('sub')
-        avatar = user_info.get('picture', '')
+        userinfo = resp.json()
+        email = userinfo.get('email')
+        name = userinfo.get('name', 'Google User')
+        picture = userinfo.get('picture', None)
+        google_id = userinfo.get('sub')
+        
+        print(f"👤 User email: {email}")
+        print(f"👤 User name: {name}")
         
         if not email:
             flash('Email not found from Google', 'danger')
             return redirect(url_for('login'))
         
+        # Check if user exists
         user = User.query.filter_by(email=email).first()
         
         if not user:
+            # Generate random password for Google users
+            alphabet = string.ascii_letters + string.digits
+            random_password = ''.join(secrets.choice(alphabet) for _ in range(32))
+            hashed_password = bcrypt.hashpw(random_password.encode('utf-8'), bcrypt.gensalt())
+            
+            # Create new user
             user = User(
-                username=name,
+                username=email.split('@')[0],
                 email=email,
-                google_id=google_id,
-                is_google_user=True,
-                avatar_url=avatar,
-                password_hash=None
+                password_hash=hashed_password.decode('utf-8'),
+                google_id=google_id
             )
             db.session.add(user)
             db.session.commit()
             flash('Account created successfully with Google!', 'success')
         else:
+            # Update Google ID if not set
             if not user.google_id:
                 user.google_id = google_id
-                user.is_google_user = True
-                user.avatar_url = avatar
                 db.session.commit()
-            flash('Logged in with Google successfully!', 'success')
+            flash(f'Welcome back, {name}!', 'success')
         
+        # Log the user in
         login_user(user, remember=True)
         
+        # Create session entry
         session_id = generate_session_token()
         ip_address = get_client_ip()
         user_agent = request.headers.get('User-Agent', '')
@@ -276,10 +305,14 @@ def google_callback():
         session['_session_id'] = session_id
         user.update_last_login(ip_address, user_agent)
         
+        flash(f'Welcome, {name}!', 'success')
         return redirect(url_for('dashboard'))
         
     except Exception as e:
-        flash(f'Google login failed: {str(e)}', 'danger')
+        print(f"❌ Google OAuth error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        flash('Authentication failed. Please try again.', 'danger')
         return redirect(url_for('login'))
 
 @app.route('/dashboard')
