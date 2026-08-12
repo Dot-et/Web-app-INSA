@@ -1,4 +1,4 @@
-# app.py - Complete Flask Application
+# app.py - Authentication System ONLY (Challenge 1)
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -10,18 +10,9 @@ import secrets
 import os
 import requests
 from dotenv import load_dotenv
-from chapa import Chapa
-import os
-
-# Initialize Chapa with your secret key
-chapa = Chapa(os.environ.get('CHAPA_SECRET_KEY'))
 
 # Import from models
 from models import db, User, UserSession
-
-# Import routes and websocket
-from routes.documents import documents_bp
-from websocket import socketio  # ← THIS IS THE CORRECT IMPORT
 
 # Load environment variables
 load_dotenv()
@@ -117,22 +108,11 @@ def inject_user():
     return dict(current_user=current_user)
 
 # ============================================
-# REGISTER BLUEPRINTS
-# ============================================
-app.register_blueprint(documents_bp, url_prefix='/documents')
-
-# ============================================
 # ROUTES
 # ============================================
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        from models import Document
-        recent_docs = Document.query.filter_by(owner_id=current_user.id, is_deleted=False).order_by(
-            Document.updated_at.desc()
-        ).limit(5).all()
-        return render_template('index.html', recent_docs=recent_docs)
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -305,11 +285,7 @@ def google_callback():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    from models import Document
-    recent_docs = Document.query.filter_by(owner_id=current_user.id, is_deleted=False).order_by(
-        Document.updated_at.desc()
-    ).limit(5).all()
-    return render_template('dashboard.html', recent_docs=recent_docs)
+    return render_template('dashboard.html')
 
 @app.route('/sessions')
 @login_required
@@ -392,12 +368,6 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 # ============================================
-# INITIALIZE SOCKETIO
-# ============================================
-
-socketio.init_app(app, cors_allowed_origins="*")
-
-# ============================================
 # CREATE DATABASE TABLES
 # ============================================
 
@@ -412,9 +382,8 @@ with app.app_context():
 
 if __name__ == '__main__':
     print("\n" + "=" * 50)
-    print("🔐 AUTH SYSTEM WITH DOCUMENT EDITOR")
+    print("🔐 AUTHENTICATION SYSTEM")
     print("=" * 50)
-    print("📍 Open: http://127.0.0.1:5000")
-    print("📄 Documents: http://127.0.0.1:5000/documents")
+    print("📍 Open: http://127.0.0.1:4000")
     print("=" * 50 + "\n")
-    socketio.run(app, debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=4000)

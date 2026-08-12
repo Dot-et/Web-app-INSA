@@ -246,13 +246,12 @@
 <body>
     <!-- NAVIGATION -->
     <nav class="navbar">
-        <a href="/" class="brand"><i class="fas fa-lock"></i> Collabrative Documentation Area</a>
+        <a href="/" class="brand"><i class="fas fa-lock"></i> Collaborative Documentation Area</a>
         <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
         <ul class="nav-links" id="navLinks">
             <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
             {% if current_user.is_authenticated %}
                 <li><a href="/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
-                <li><a href="/documents"><i class="fas fa-file"></i> Documents</a></li>
                 <li><a href="/sessions"><i class="fas fa-laptop"></i> Sessions</a></li>
                 <li class="user-info">
                     <span class="avatar">{{ current_user.username[0].upper() }}</span>
