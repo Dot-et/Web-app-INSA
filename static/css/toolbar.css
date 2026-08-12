@@ -1,0 +1,75 @@
+/* ============================================
+   TOOLBAR STYLES
+   ============================================ */
+
+.toolbar-wrapper {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+}
+
+#toolbar .ql-formats {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: 4px;
+    padding-right: 4px;
+    border-right: 1px solid var(--border-color);
+}
+
+#toolbar .ql-formats:last-child {
+    border-right: none;
+}
+
+#toolbar button {
+    border: none;
+    background: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#toolbar button:hover {
+    background: var(--secondary);
+    color: var(--text-primary);
+}
+
+#toolbar button.ql-active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+#toolbar select {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text-primary);
+    height: 30px;
+    outline: none;
+}
+
+#toolbar select:hover {
+    border-color: var(--primary);
+}

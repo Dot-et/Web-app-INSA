@@ -1,0 +1,517 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Home - Secure Auth{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       HERO SECTION
+       ============================================ */
+    
+    .hero {
+        text-align: center;
+        padding: 60px 20px 40px;
+        background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+        border-radius: 20px;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: rgba(74, 144, 217, 0.05);
+        border-radius: 50%;
+    }
+    
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(46, 204, 113, 0.05);
+        border-radius: 50%;
+    }
+    
+    .hero .hero-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: block;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero h1 {
+        font-size: 42px;
+        font-weight: 800;
+        color: #1a1a2e;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+        letter-spacing: -0.5px;
+    }
+    
+    .hero h1 span {
+        color: #4a90d9;
+    }
+    
+    .hero p {
+        font-size: 18px;
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0 auto 30px;
+        position: relative;
+        z-index: 1;
+        line-height: 1.7;
+    }
+    
+    .hero .cta-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero .cta-buttons .btn {
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .hero .cta-buttons .btn-primary {
+        background: #4a90d9;
+        color: white;
+    }
+    
+    .hero .cta-buttons .btn-primary:hover {
+        background: #357abd;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(74, 144, 217, 0.35);
+    }
+    
+    .hero .cta-buttons .btn-secondary {
+        background: white;
+        color: #1a1a2e;
+        border: 2px solid #e8ecf0;
+    }
+    
+    .hero .cta-buttons .btn-secondary:hover {
+        border-color: #4a90d9;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    
+    /* ============================================
+       FEATURES SECTION
+       ============================================ */
+    
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        margin: 40px 0;
+    }
+    
+    .feature-card {
+        background: white;
+        padding: 30px 24px;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border-color: #4a90d9;
+    }
+    
+    .feature-card .feature-icon {
+        font-size: 40px;
+        margin-bottom: 16px;
+        display: block;
+    }
+    
+    .feature-card .feature-icon .icon-bg {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+    
+    .feature-card .feature-icon .icon-bg.blue {
+        background: #e8f0fe;
+        color: #4a90d9;
+    }
+    
+    .feature-card .feature-icon .icon-bg.green {
+        background: #e8f5e9;
+        color: #2ecc71;
+    }
+    
+    .feature-card .feature-icon .icon-bg.orange {
+        background: #fff3e0;
+        color: #f39c12;
+    }
+    
+    .feature-card .feature-icon .icon-bg.purple {
+        background: #f3e8ff;
+        color: #9b59b6;
+    }
+    
+    .feature-card h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+    
+    .feature-card p {
+        font-size: 14px;
+        color: #6c757d;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    /* ============================================
+       STATS SECTION
+       ============================================ */
+    
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin: 40px 0;
+        padding: 30px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    
+    .stats-section .stat-item {
+        text-align: center;
+    }
+    
+    .stats-section .stat-item .stat-number {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1a1a2e;
+        display: block;
+    }
+    
+    .stats-section .stat-item .stat-label {
+        font-size: 14px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+    
+    .stats-section .stat-item .stat-number.blue {
+        color: #4a90d9;
+    }
+    
+    .stats-section .stat-item .stat-number.green {
+        color: #2ecc71;
+    }
+    
+    .stats-section .stat-item .stat-number.orange {
+        color: #f39c12;
+    }
+    
+    /* ============================================
+       RECENT DOCUMENTS
+       ============================================ */
+    
+    .recent-docs {
+        background: white;
+        border-radius: 16px;
+        padding: 24px 30px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+        margin-top: 30px;
+    }
+    
+    .recent-docs .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .recent-docs .section-header h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .recent-docs .section-header a {
+        font-size: 14px;
+        color: #4a90d9;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .recent-docs .section-header a:hover {
+        text-decoration: underline;
+    }
+    
+    .recent-docs .doc-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f2f5;
+    }
+    
+    .recent-docs .doc-item:last-child {
+        border-bottom: none;
+    }
+    
+    .recent-docs .doc-item .doc-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .recent-docs .doc-item .doc-info .doc-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #e8f0fe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4a90d9;
+        font-size: 16px;
+    }
+    
+    .recent-docs .doc-item .doc-info .doc-name {
+        font-weight: 500;
+        color: #1a1a2e;
+    }
+    
+    .recent-docs .doc-item .doc-info .doc-date {
+        font-size: 13px;
+        color: #6c757d;
+    }
+    
+    .recent-docs .doc-item .doc-action a {
+        color: #4a90d9;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .recent-docs .doc-item .doc-action a:hover {
+        text-decoration: underline;
+    }
+    
+    .empty-docs {
+        text-align: center;
+        padding: 30px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-docs i {
+        font-size: 40px;
+        color: #d5d9e0;
+        margin-bottom: 12px;
+        display: block;
+    }
+    
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    
+    @media (max-width: 768px) {
+        .hero {
+            padding: 40px 16px 30px;
+        }
+        
+        .hero h1 {
+            font-size: 28px;
+        }
+        
+        .hero p {
+            font-size: 16px;
+        }
+        
+        .features {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-section {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .recent-docs {
+            padding: 16px 18px;
+        }
+        
+        .recent-docs .doc-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .hero h1 {
+            font-size: 24px;
+        }
+        
+        .hero .cta-buttons .btn {
+            padding: 12px 24px;
+            font-size: 14px;
+        }
+        
+        .stats-section .stat-item .stat-number {
+            font-size: 24px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <span class="hero-icon">🔐</span>
+    <h1>Welcome to <span>Collaborative Documentation Area</span></h1>
+    <p>
+        A complete collabrative editing area  with advanced security features.
+        Create, manage, and collaborate on documents securely.
+    </p>
+    
+    <div class="cta-buttons">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+            <a href="{{ url_for('documents.list_documents') }}" class="btn btn-secondary">
+                <i class="fas fa-file-alt"></i> My Documents
+            </a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Get Started
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+    <div class="feature-card">
+        <span class="feature-icon">
+            <span class="icon-bg blue">🔒</span>
+        </span>
+        <h3>Strong Passwords</h3>
+        <p>12+ characters with uppercase, lowercase, numbers, and special characters</p>
+    </div>
+    
+    <div class="feature-card">
+        <span class="feature-icon">
+            <span class="icon-bg green">🛡️</span>
+        </span>
+        <h3>Brute Force Protection</h3>
+        <p>Accounts lock after 5 failed attempts for 30 minutes</p>
+    </div>
+    
+    <div class="feature-card">
+        <span class="feature-icon">
+            <span class="icon-bg orange">💻</span>
+        </span>
+        <h3>Session Management</h3>
+        <p>View and manage all your active sessions across devices</p>
+    </div>
+    
+    <div class="feature-card">
+        <span class="feature-icon">
+            <span class="icon-bg purple">📊</span>
+        </span>
+        <h3>Document Collaboration</h3>
+        <p>Create, edit, and collaborate on documents in real-time</p>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section">
+    <div class="stat-item">
+        <span class="stat-number blue">🔐</span>
+        <span class="stat-label">Secure Authentication</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number green">📄</span>
+        <span class="stat-label">Document Management</span>
+    </div>
+    <div class="stat-item">
+        <span class="stat-number orange">👥</span>
+        <span class="stat-label">Real-time Collaboration</span>
+    </div>
+</div>
+
+<!-- RECENT DOCUMENTS (Only for logged in users) -->
+{% if current_user.is_authenticated %}
+    <div class="recent-docs">
+        <div class="section-header">
+            <h3><i class="fas fa-file-alt" style="color:#4a90d9;"></i> Recent Documents</h3>
+            <a href="{{ url_for('documents.list_documents') }}">View All →</a>
+        </div>
+        
+        {% if recent_docs %}
+            {% for doc in recent_docs %}
+                <div class="doc-item">
+                    <div class="doc-info">
+                        <span class="doc-icon"><i class="fas fa-file-alt"></i></span>
+                        <div>
+                            <div class="doc-name">{{ doc.title }}</div>
+                            <div class="doc-date">
+                                <i class="far fa-clock"></i> {{ doc.updated_at.strftime('%b %d, %Y %H:%M') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="doc-action">
+                        <a href="{{ url_for('documents.edit_document', doc_id=doc.id) }}">Open →</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-docs">
+                <i class="fas fa-file-alt"></i>
+                <p>You don't have any documents yet.</p>
+                <a href="{{ url_for('documents.create_document') }}" class="btn btn-primary" style="margin-top: 10px; display: inline-block; padding: 8px 20px; border-radius: 8px; font-size: 14px; text-decoration: none;">
+                    <i class="fas fa-plus"></i> Create your first document
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,55 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Share Document{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+    <h1 class="mb-4">Share: {{ document.title }}</h1>
+    
+    <div class="card p-4 shadow-sm mb-4">
+        <h5>Add Collaborators</h5>
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-5">
+                    <input type="email" name="email" class="form-control" placeholder="User email" required>
+                </div>
+                <div class="col-md-4">
+                    <select name="permission" class="form-control">
+                        <option value="viewer">Viewer</option>
+                        <option value="commenter">Commenter</option>
+                        <option value="editor">Editor</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Share</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="card p-4 shadow-sm">
+        <h5>Current Collaborators</h5>
+        {% if collaborators %}
+            <div class="list-group">
+                {% for collab in collaborators %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ collab.user.username }}</strong>
+                            <span class="badge badge-secondary">{{ collab.permission }}</span>
+                        </div>
+                        <small class="text-muted">Added: {{ collab.added_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No collaborators yet. Share this document to collaborate!</p>
+        {% endif %}
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('documents.edit_document', doc_id=document.id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Document
+        </a>
+    </div>
+</div>
+{% endblock %}

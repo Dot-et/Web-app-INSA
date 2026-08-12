@@ -1,0 +1,325 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Secure Auth{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        /* ========== NAVIGATION ========== */
+        .navbar {
+            background: #1a1a2e;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .brand {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand i {
+            color: #4a90d9;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .nav-links .user-info {
+            color: rgba(255,255,255,0.9);
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .nav-links .user-info .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #4a90d9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .nav-links .btn-logout {
+            background: #e74c3c;
+            color: #fff !important;
+        }
+        
+        .nav-links .btn-logout:hover {
+            background: #c0392b !important;
+        }
+        
+        .nav-links .btn-register {
+            background: #2ecc71;
+            color: #fff !important;
+        }
+        
+        .nav-links .btn-register:hover {
+            background: #27ae60 !important;
+        }
+        
+        .nav-links .btn-login {
+            color: #fff !important;
+        }
+        
+        .nav-links .btn-login:hover {
+            background: rgba(255,255,255,0.15) !important;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: #1a1a2e;
+                padding: 16px;
+                border-top: 1px solid rgba(255,255,255,0.05);
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .nav-links a,
+            .nav-links .user-info {
+                padding: 10px 14px;
+                width: 100%;
+            }
+        }
+        
+        /* ========== FLASH MESSAGES ========== */
+        .flash-container {
+            max-width: 1100px;
+            margin: 16px auto;
+            padding: 0 20px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #1e7e34;
+            border-left-color: #2ecc71;
+        }
+        .alert-danger {
+            background: #fde8e8;
+            color: #721c24;
+            border-left-color: #e74c3c;
+        }
+        .alert-warning {
+            background: #fff8e1;
+            color: #856404;
+            border-left-color: #f39c12;
+        }
+        .alert-info {
+            background: #e3f2fd;
+            color: #0c5460;
+            border-left-color: #4a90d9;
+        }
+        
+        .alert .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        .alert .close-btn:hover {
+            opacity: 1;
+        }
+        
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        /* ========== FOOTER ========== */
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.5);
+            padding: 16px 24px;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .footer-content a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            margin-left: 16px;
+        }
+        
+        .footer-content a:hover {
+            color: #fff;
+        }
+        
+        @media (max-width: 600px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-content a {
+                margin: 0 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <a href="/" class="brand"><i class="fas fa-lock"></i> Collabrative Documentation Area</a>
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="/dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                <li><a href="/documents"><i class="fas fa-file"></i> Documents</a></li>
+                <li><a href="/sessions"><i class="fas fa-laptop"></i> Sessions</a></li>
+                <li class="user-info">
+                    <span class="avatar">{{ current_user.username[0].upper() }}</span>
+                    {{ current_user.username }}
+                </li>
+                <li><a href="{{ url_for('logout') }}" class="btn-logout" onclick="return confirm('Logout?')">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a></li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="{{ url_for('register') }}" class="btn-register"><i class="fas fa-user-plus"></i> Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- FLASH MESSAGES -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                        <button class="close-btn">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <span>&copy; 2026 Collaborative Documentation Area</span>
+            <div>
+                <a href="#">Privacy</a>
+                <a href="#">Security</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('open');
+        });
+
+        // Close flash messages
+        document.querySelectorAll('.alert .close-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                this.parentElement.style.display = 'none';
+            });
+        });
+
+        // Auto-close flash messages after 5 seconds
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.opacity = '0';
+                setTimeout(function() { alert.style.display = 'none'; }, 300);
+            }, 5000);
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
