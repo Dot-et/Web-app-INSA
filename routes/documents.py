@@ -18,6 +18,7 @@ def list_documents():
     ).all()
     return render_template('documents.html', owned=owned, shared=shared)
 
+
 @documents_bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def create_document():
@@ -30,11 +31,13 @@ def create_document():
         return redirect(url_for('documents.edit_document', doc_id=doc.id))
     return render_template('create_document.html')
 
+
 @documents_bp.route('/<int:doc_id>')
 @login_required
 def edit_document(doc_id):
     doc = Document.query.get_or_404(doc_id)
     
+    # Check access
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
             document_id=doc_id, user_id=current_user.id
@@ -48,6 +51,7 @@ def edit_document(doc_id):
     ).all()
     
     return render_template('editor.html', document=doc, comments=comments)
+
 
 @documents_bp.route('/<int:doc_id>/rename', methods=['POST'])
 @login_required
@@ -64,6 +68,7 @@ def rename_document(doc_id):
         flash('Document renamed!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=doc_id))
 
+
 @documents_bp.route('/<int:doc_id>/delete', methods=['POST'])
 @login_required
 def delete_document(doc_id):
@@ -76,6 +81,7 @@ def delete_document(doc_id):
     db.session.commit()
     flash('Document deleted!', 'success')
     return redirect(url_for('documents.list_documents'))
+
 
 @documents_bp.route('/<int:doc_id>/duplicate', methods=['POST'])
 @login_required
@@ -90,6 +96,7 @@ def duplicate_document(doc_id):
     db.session.commit()
     flash('Document duplicated!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=new_doc.id))
+
 
 # ============================================
 # SHARING ROUTES
@@ -129,6 +136,31 @@ def share_document(doc_id):
     collaborators = DocumentCollaborator.query.filter_by(document_id=doc_id).all()
     return render_template('share.html', document=doc, collaborators=collaborators)
 
+
+@documents_bp.route('/<int:doc_id>/collaborators/<int:collab_id>/remove', methods=['POST'])
+@login_required
+def remove_collaborator(doc_id, collab_id):
+    """Remove a collaborator from a document"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Only owner can remove collaborators
+    if doc.owner_id != current_user.id:
+        flash('Only the owner can remove collaborators.', 'danger')
+        return redirect(url_for('documents.share_document', doc_id=doc_id))
+    
+    collaborator = DocumentCollaborator.query.get_or_404(collab_id)
+    
+    # Don't remove the owner
+    if collaborator.user_id == doc.owner_id:
+        flash('Cannot remove the document owner.', 'warning')
+        return redirect(url_for('documents.share_document', doc_id=doc_id))
+    
+    db.session.delete(collaborator)
+    db.session.commit()
+    flash('Collaborator removed successfully.', 'success')
+    return redirect(url_for('documents.share_document', doc_id=doc_id))
+
+
 # ============================================
 # VERSION HISTORY ROUTES
 # ============================================
@@ -141,6 +173,7 @@ def view_versions(doc_id):
         DocumentVersion.created_at.desc()
     ).all()
     return render_template('versions.html', document=doc, versions=versions)
+
 
 @documents_bp.route('/<int:doc_id>/versions/<int:version_id>/restore', methods=['POST'])
 @login_required
@@ -157,6 +190,7 @@ def restore_version(doc_id, version_id):
     db.session.commit()
     flash('Version restored!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=doc_id))
+
 
 # ============================================
 # COMMENTS ROUTES
@@ -193,6 +227,7 @@ def add_comment(doc_id):
     flash('Comment added!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=doc_id))
 
+
 @documents_bp.route('/comments/<int:comment_id>/resolve', methods=['POST'])
 @login_required
 def resolve_comment(comment_id):
@@ -208,6 +243,7 @@ def resolve_comment(comment_id):
     flash('Comment resolved!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
 
+
 @documents_bp.route('/comments/<int:comment_id>/delete', methods=['POST'])
 @login_required
 def delete_comment(comment_id):
@@ -222,8 +258,9 @@ def delete_comment(comment_id):
     flash('Comment deleted!', 'success')
     return redirect(url_for('documents.edit_document', doc_id=comment.document_id))
 
+
 # ============================================
-# API ROUTES (FIXED)
+# API ROUTES
 # ============================================
 
 @documents_bp.route('/<int:doc_id>/api/save', methods=['POST'])
@@ -232,7 +269,7 @@ def api_save_document(doc_id):
     """API endpoint for auto-saving documents"""
     doc = Document.query.get_or_404(doc_id)
     
-    # ✅ FIXED: Allow owner OR collaborators with edit permission
+    # Check permissions
     if doc.owner_id != current_user.id:
         collaborator = DocumentCollaborator.query.filter_by(
             document_id=doc_id, user_id=current_user.id
@@ -247,6 +284,7 @@ def api_save_document(doc_id):
         db.session.commit()
         return jsonify({'status': 'saved'})
     return jsonify({'error': 'No data provided'}), 400
+
 
 @documents_bp.route('/<int:doc_id>/api/rename', methods=['POST'])
 @login_required
@@ -263,3 +301,83 @@ def api_rename_document(doc_id):
         db.session.commit()
         return jsonify({'status': 'renamed'})
     return jsonify({'error': 'No data provided'}), 400
+
+
+@documents_bp.route('/<int:doc_id>/api/content', methods=['GET'])
+@login_required
+def api_get_content(doc_id):
+    """API endpoint to fetch document content"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Check access
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator:
+            return jsonify({'error': 'Access denied'}), 403
+    
+    return jsonify({
+        'content': doc.content,
+        'title': doc.title,
+        'updated_at': doc.updated_at.isoformat()
+    })
+
+
+@documents_bp.route('/<int:doc_id>/api/versions', methods=['GET'])
+@login_required
+def api_get_versions(doc_id):
+    """API endpoint to fetch version history"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Check access
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator:
+            return jsonify({'error': 'Access denied'}), 403
+    
+    versions = DocumentVersion.query.filter_by(document_id=doc_id).order_by(
+        DocumentVersion.created_at.desc()
+    ).limit(50).all()
+    
+    return jsonify([{
+        'id': v.id,
+        'version_number': v.version_number,
+        'username': v.user.username if v.user else 'Unknown',
+        'created_at': v.created_at.isoformat(),
+        'preview': v.content[:150] if v.content else ''
+    } for v in versions])
+
+
+@documents_bp.route('/<int:doc_id>/api/comments', methods=['GET'])
+@login_required
+def api_get_comments(doc_id):
+    """API endpoint to fetch comments"""
+    doc = Document.query.get_or_404(doc_id)
+    
+    # Check access
+    if doc.owner_id != current_user.id:
+        collaborator = DocumentCollaborator.query.filter_by(
+            document_id=doc_id, user_id=current_user.id
+        ).first()
+        if not collaborator:
+            return jsonify({'error': 'Access denied'}), 403
+    
+    comments = Comment.query.filter_by(
+        document_id=doc_id, parent_id=None
+    ).order_by(Comment.created_at.asc()).all()
+    
+    def format_comment(comment):
+        return {
+            'id': comment.id,
+            'content': comment.content,
+            'username': comment.user.username if comment.user else 'Unknown',
+            'user_id': comment.user_id,
+            'created_at': comment.created_at.isoformat(),
+            'resolved': comment.resolved,
+            'replies': [format_comment(reply) for reply in comment.replies]
+        }
+    
+    return jsonify([format_comment(c) for c in comments])

@@ -1,10 +1,9 @@
-﻿# websocket.py - Place this in the project root
-from flask_socketio import SocketIO, emit, join_room, leave_room
+﻿from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import current_user
 from models import db, Document, DocumentVersion
 from datetime import datetime
 
-# Initialize SocketIO with CORS support
+# Initialize SocketIO
 socketio = SocketIO(cors_allowed_origins="*")
 
 @socketio.on('connect')
@@ -35,7 +34,7 @@ def handle_join_document(data):
         emit('user_joined', {
             'username': current_user.username,
             'user_id': current_user.id,
-            'avatar': current_user.avatar_url or current_user.username[0].upper()
+            'avatar': current_user.username[0].upper()
         }, room=room, include_self=False)
 
 @socketio.on('leave_document')
@@ -62,25 +61,17 @@ def handle_document_change(data):
     
     if doc_id and content and current_user.is_authenticated:
         try:
-            # Update database
+            print(f'📝 Document change from {current_user.username}, doc: {doc_id}')
+            
+            # Save to database
             doc = Document.query.get(doc_id)
             if doc:
                 doc.content = content
                 doc.updated_at = datetime.utcnow()
                 db.session.commit()
+                print(f'✅ Saved to database')
                 
-                # Save version history
-                version_count = DocumentVersion.query.filter_by(document_id=doc_id).count()
-                version = DocumentVersion(
-                    document_id=doc_id,
-                    content=content,
-                    user_id=current_user.id,
-                    version_number=version_count + 1
-                )
-                db.session.add(version)
-                db.session.commit()
-                
-                # Broadcast to all users in the room
+                # Broadcast to all users EXCEPT the sender
                 room = f'doc_{doc_id}'
                 emit('document_updated', {
                     'content': content,
@@ -88,6 +79,54 @@ def handle_document_change(data):
                     'user_id': current_user.id
                 }, room=room, include_self=False)
                 
+                print(f'📤 Broadcasted to room: {room}')
+                
         except Exception as e:
             print(f'⚠️ Error saving document: {e}')
             emit('error', {'message': 'Failed to save document'})
+
+# ============================================
+# BONUS: CURSOR TRACKING
+# ============================================
+
+@socketio.on('cursor_move')
+def handle_cursor_move(data):
+    """Handle cursor position updates"""
+    doc_id = data.get('doc_id')
+    index = data.get('index')
+    
+    if doc_id and current_user.is_authenticated:
+        room = f'doc_{doc_id}'
+        emit('cursor_update', {
+            'user': current_user.username,
+            'user_id': current_user.id,
+            'index': index
+        }, room=room, include_self=False)
+
+# ============================================
+# BONUS: TYPING INDICATORS
+# ============================================
+
+@socketio.on('typing')
+def handle_typing(data):
+    """Handle typing indicator"""
+    doc_id = data.get('doc_id')
+    
+    if doc_id and current_user.is_authenticated:
+        room = f'doc_{doc_id}'
+        emit('user_typing', {
+            'username': current_user.username,
+            'user_id': current_user.id
+        }, room=room, include_self=False)
+
+@socketio.on('stop_typing')
+def handle_stop_typing(data):
+    """Handle stop typing indicator"""
+    doc_id = data.get('doc_id')
+    
+    if doc_id and current_user.is_authenticated:
+        room = f'doc_{doc_id}'
+        emit('user_stop_typing', {
+            'username': current_user.username,
+            'user_id': current_user.id
+        }, room=room, include_self=False)

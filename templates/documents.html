@@ -14,6 +14,20 @@
         </a>
     </div>
 
+    <!-- ============================================
+    SEARCH BAR
+    ============================================ -->
+    <div style="margin-bottom: 20px;">
+        <div style="position: relative; max-width: 500px;">
+            <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 1;"></i>
+            <input type="text" id="searchDocs" placeholder="Search documents by title or owner..." 
+                   style="width: 100%; padding: 12px 14px 12px 40px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.3s ease; background: #fafbfc; box-sizing: border-box;">
+        </div>
+        <div id="searchStatus" style="margin-top: 6px; font-size: 13px; color: #6c757d; display: none;">
+            <span id="searchCount">0</span> documents found
+        </div>
+    </div>
+
     <div class="stats-row">
         <div class="stat-card">
             <span class="stat-number">{{ owned|length + shared|length }}</span>
@@ -33,10 +47,10 @@
         <!-- Owned Documents -->
         <div class="doc-section">
             <h3><i class="fas fa-user"></i> My Documents</h3>
-            {% if owned %}
-                <div class="doc-list">
+            <div class="doc-list" id="ownedDocuments">
+                {% if owned %}
                     {% for doc in owned %}
-                        <a href="{{ url_for('documents.edit_document', doc_id=doc.id) }}" class="doc-card">
+                        <a href="{{ url_for('documents.edit_document', doc_id=doc.id) }}" class="doc-card" data-title="{{ doc.title|lower }}" data-owner="{{ current_user.username|lower }}">
                             <div class="doc-icon">
                                 <i class="fas fa-file-alt"></i>
                             </div>
@@ -45,6 +59,7 @@
                                 <div class="doc-meta">
                                     <span><i class="far fa-calendar-alt"></i> {{ doc.updated_at.strftime('%b %d, %Y') }}</span>
                                     <span><i class="far fa-clock"></i> {{ doc.updated_at.strftime('%H:%M') }}</span>
+                                    <span class="owner"><i class="fas fa-user"></i> {{ current_user.username }}</span>
                                 </div>
                             </div>
                             <div class="doc-actions">
@@ -62,55 +77,57 @@
                             </div>
                         </a>
                     {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-file-alt fa-3x"></i>
-                    <p>No documents yet</p>
-                    <a href="{{ url_for('documents.create_document') }}" class="btn btn-primary">Create your first document</a>
-                </div>
-            {% endif %}
+                {% else %}
+                    <div class="empty-state" id="emptyOwned">
+                        <i class="fas fa-file-alt fa-3x"></i>
+                        <p>No documents yet</p>
+                        <a href="{{ url_for('documents.create_document') }}" class="btn btn-primary">Create your first document</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Shared Documents -->
         <div class="doc-section">
             <h3><i class="fas fa-users"></i> Shared with Me</h3>
-            {% if shared %}
-                <div class="doc-list">
+            <div class="doc-list" id="sharedDocuments">
+                {% if shared %}
                     {% for doc in shared %}
-                        <a href="{{ url_for('documents.edit_document', doc_id=doc.id) }}" class="doc-card shared">
+                        <a href="{{ url_for('documents.edit_document', doc_id=doc.id) }}" class="doc-card shared" data-title="{{ doc.title|lower }}" data-owner="{{ doc.owner.username|lower }}">
                             <div class="doc-icon">
                                 <i class="fas fa-share-alt"></i>
                             </div>
                             <div class="doc-info">
                                 <div class="doc-title">{{ doc.title }}</div>
                                 <div class="doc-meta">
-                                    <span><i class="fas fa-user"></i> {{ doc.owner.username }}</span>
+                                    <span class="owner"><i class="fas fa-user"></i> {{ doc.owner.username }}</span>
                                     <span><i class="far fa-clock"></i> {{ doc.updated_at.strftime('%b %d, %Y') }}</span>
                                 </div>
                             </div>
                         </a>
                     {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-share-alt fa-3x"></i>
-                    <p>No documents shared with you</p>
-                </div>
-            {% endif %}
+                {% else %}
+                    <div class="empty-state" id="emptyShared">
+                        <i class="fas fa-share-alt fa-3x"></i>
+                        <p>No documents shared with you</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
 
 <style>
     .documents-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-    .page-header h1 { font-size: 28px; color: #1a1a2e; margin: 0; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+    .page-header h1 { font-size: 28px; color: #1a1a2e; margin: 0; display: flex; align-items: center; gap: 12px; }
     .page-header h1 i { color: #4a90d9; }
     .page-header .text-muted { color: #6c757d; margin: 4px 0 0; font-size: 15px; }
+    
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; text-decoration: none; transition: all 0.3s ease; }
     .btn-primary { background: #4a90d9; color: white; }
     .btn-primary:hover { background: #357abd; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(74, 144, 217, 0.35); }
+    
     .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 30px; }
     .stat-card { background: white; padding: 20px 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s ease; }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
@@ -119,26 +136,193 @@
     .stat-card:nth-child(1) .stat-number { color: #4a90d9; }
     .stat-card:nth-child(2) .stat-number { color: #2ecc71; }
     .stat-card:nth-child(3) .stat-number { color: #f39c12; }
+    
     .documents-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     @media (max-width: 768px) { .documents-grid { grid-template-columns: 1fr; } .stats-row { grid-template-columns: 1fr 1fr; } .page-header { flex-direction: column; align-items: stretch; } .page-header .btn { text-align: center; justify-content: center; } }
     @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
+    
     .doc-section h3 { font-size: 16px; color: #1a1a2e; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
     .doc-section h3 i { color: #4a90d9; }
     .doc-list { display: flex; flex-direction: column; gap: 10px; }
+    
     .doc-card { display: flex; align-items: center; gap: 15px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-decoration: none; color: inherit; transition: all 0.3s ease; border: 1px solid transparent; }
     .doc-card:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-color: #4a90d9; }
     .doc-card.shared:hover { border-color: #2ecc71; }
     .doc-card .doc-icon { width: 40px; height: 40px; border-radius: 8px; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #4a90d9; font-size: 18px; flex-shrink: 0; }
     .doc-card .doc-info { flex: 1; min-width: 0; }
     .doc-card .doc-title { font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .doc-card .doc-meta { display: flex; gap: 15px; font-size: 13px; color: #6c757d; margin-top: 4px; }
+    .doc-card .doc-meta { display: flex; gap: 15px; font-size: 13px; color: #6c757d; margin-top: 4px; flex-wrap: wrap; }
     .doc-card .doc-meta span { display: flex; align-items: center; gap: 4px; }
     .doc-card .doc-actions { display: flex; gap: 5px; flex-shrink: 0; }
     .doc-card .btn-ghost { background: none; border: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; color: #6c757d; transition: all 0.3s ease; font-size: 14px; }
     .doc-card .btn-ghost:hover { background: #f0f2f5; color: #4a90d9; }
     .doc-card .btn-ghost.danger:hover { background: #fde8e8; color: #e74c3c; }
+    
     .empty-state { text-align: center; padding: 40px 20px; color: #6c757d; background: white; border-radius: 10px; border: 2px dashed #e8ecf0; }
     .empty-state i { color: #d5d9e0; margin-bottom: 15px; }
     .empty-state p { margin-bottom: 15px; font-size: 16px; }
+    .empty-state.hidden { display: none; }
+
+    /* Dark mode for documents page */
+    body.dark-mode .stat-card,
+    body.dark-mode .doc-card,
+    body.dark-mode .empty-state {
+        background: #1a1a2e !important;
+        border-color: #2d2d44 !important;
+        color: #e8ecf0 !important;
+    }
+    body.dark-mode .stat-card .stat-number,
+    body.dark-mode .doc-card .doc-title {
+        color: #e8ecf0 !important;
+    }
+    body.dark-mode .doc-card .doc-meta {
+        color: #b0b0c0 !important;
+    }
+    body.dark-mode .doc-card .doc-icon {
+        background: #2d2d44 !important;
+    }
+    body.dark-mode #searchDocs {
+        background: #1a1a2e !important;
+        border-color: #2d2d44 !important;
+        color: #e8ecf0 !important;
+    }
+    body.dark-mode #searchDocs:focus {
+        background: #2d2d44 !important;
+        border-color: #4a90d9 !important;
+    }
+    body.dark-mode #searchDocs::placeholder {
+        color: #6c757d !important;
+    }
+    body.dark-mode .page-header h1 {
+        color: #e8ecf0 !important;
+    }
 </style>
+
+<script>
+// ============================================
+// SEARCH FUNCTIONALITY
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchDocs');
+    const searchStatus = document.getElementById('searchStatus');
+    const searchCount = document.getElementById('searchCount');
+    
+    if (!searchInput) {
+        console.log('Search input not found');
+        return;
+    }
+    
+    console.log('✅ Search initialized');
+    
+    function performSearch() {
+        const query = searchInput.value.toLowerCase().trim();
+        console.log('🔍 Searching for:', query);
+        
+        // Get all document cards
+        const allCards = document.querySelectorAll('.doc-card');
+        let totalVisible = 0;
+        
+        // Update each card
+        allCards.forEach(function(card) {
+            // Get searchable data from data attributes
+            const title = card.dataset.title || '';
+            const owner = card.dataset.owner || '';
+            
+            // Check if query matches title or owner
+            const match = query === '' || title.includes(query) || owner.includes(query);
+            
+            // Show/hide card
+            if (match) {
+                card.style.display = 'flex';
+                totalVisible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Update search status
+        if (query === '') {
+            searchStatus.style.display = 'none';
+        } else {
+            searchStatus.style.display = 'block';
+            searchCount.textContent = totalVisible;
+        }
+        
+        console.log('📊 Found:', totalVisible, 'documents');
+        
+        // Handle empty states
+        handleEmptyStates(query);
+    }
+    
+    function handleEmptyStates(query) {
+        // Check owned documents section
+        const ownedSection = document.getElementById('ownedDocuments');
+        const ownedEmpty = document.getElementById('emptyOwned');
+        if (ownedSection && ownedEmpty) {
+            const visibleOwned = ownedSection.querySelectorAll('.doc-card[style*="display: flex"]').length;
+            const hasOwnedDocs = ownedSection.querySelectorAll('.doc-card').length > 0;
+            
+            if (query !== '' && visibleOwned === 0 && hasOwnedDocs) {
+                // Show "no results" message if there are documents but none match
+                let noResultMsg = ownedSection.querySelector('.no-result-msg');
+                if (!noResultMsg) {
+                    noResultMsg = document.createElement('div');
+                    noResultMsg.className = 'empty-state no-result-msg';
+                    noResultMsg.innerHTML = `
+                        <i class="fas fa-search fa-3x"></i>
+                        <p>No matching documents found</p>
+                        <small style="color: #999;">Try a different search term</small>
+                    `;
+                    ownedSection.appendChild(noResultMsg);
+                }
+                ownedEmpty.style.display = 'none';
+            } else {
+                const noResultMsg = ownedSection.querySelector('.no-result-msg');
+                if (noResultMsg) noResultMsg.remove();
+                ownedEmpty.style.display = hasOwnedDocs ? 'none' : 'block';
+            }
+        }
+        
+        // Check shared documents section
+        const sharedSection = document.getElementById('sharedDocuments');
+        const sharedEmpty = document.getElementById('emptyShared');
+        if (sharedSection && sharedEmpty) {
+            const visibleShared = sharedSection.querySelectorAll('.doc-card[style*="display: flex"]').length;
+            const hasSharedDocs = sharedSection.querySelectorAll('.doc-card').length > 0;
+            
+            if (query !== '' && visibleShared === 0 && hasSharedDocs) {
+                let noResultMsg = sharedSection.querySelector('.no-result-msg');
+                if (!noResultMsg) {
+                    noResultMsg = document.createElement('div');
+                    noResultMsg.className = 'empty-state no-result-msg';
+                    noResultMsg.innerHTML = `
+                        <i class="fas fa-search fa-3x"></i>
+                        <p>No matching documents found</p>
+                        <small style="color: #999;">Try a different search term</small>
+                    `;
+                    sharedSection.appendChild(noResultMsg);
+                }
+                sharedEmpty.style.display = 'none';
+            } else {
+                const noResultMsg = sharedSection.querySelector('.no-result-msg');
+                if (noResultMsg) noResultMsg.remove();
+                sharedEmpty.style.display = hasSharedDocs ? 'none' : 'block';
+            }
+        }
+    }
+    
+    // Add event listener for search input
+    searchInput.addEventListener('input', performSearch);
+    
+    // Also trigger on keyup for better responsiveness
+    searchInput.addEventListener('keyup', performSearch);
+    
+    // Initial search (show all)
+    performSearch();
+    
+    // Log for debugging
+    console.log('📄 Total document cards found:', document.querySelectorAll('.doc-card').length);
+});
+</script>
 {% endblock %}

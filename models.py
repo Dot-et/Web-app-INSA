@@ -1,11 +1,8 @@
-﻿# models.py - Complete Database Models
-
-from flask_sqlalchemy import SQLAlchemy
+﻿from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime, timedelta
 import bcrypt
 
-# Create the database object
 db = SQLAlchemy()
 
 # ============================================
@@ -13,7 +10,6 @@ db = SQLAlchemy()
 # ============================================
 
 class User(UserMixin, db.Model):
-    """User model with Google OAuth support"""
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -40,6 +36,10 @@ class User(UserMixin, db.Model):
     
     # Relationships
     sessions = db.relationship('UserSession', backref='user', lazy=True, cascade='all, delete-orphan')
+    documents_owned = db.relationship('Document', backref='owner', foreign_keys='Document.owner_id')
+    shared_documents = db.relationship('DocumentCollaborator', backref='user', lazy=True)
+    document_versions = db.relationship('DocumentVersion', backref='user', lazy=True)
+    comments = db.relationship('Comment', backref='user', lazy=True)
     
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -84,7 +84,6 @@ class User(UserMixin, db.Model):
 # ============================================
 
 class UserSession(db.Model):
-    """Track user sessions"""
     __tablename__ = 'user_sessions'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -105,11 +104,10 @@ class UserSession(db.Model):
 
 
 # ============================================
-# DOCUMENT MODELS (For Collaborative Editor)
+# DOCUMENT MODELS
 # ============================================
 
 class Document(db.Model):
-    """Document model for collaborative editing"""
     __tablename__ = 'documents'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -121,14 +119,23 @@ class Document(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
     
     # Relationships
-    owner = db.relationship('User', backref='documents_owned', foreign_keys=[owner_id])
     collaborators = db.relationship('DocumentCollaborator', backref='document', lazy=True, cascade='all, delete-orphan')
     versions = db.relationship('DocumentVersion', backref='document', lazy=True, cascade='all, delete-orphan')
     comments = db.relationship('Comment', backref='document', lazy=True, cascade='all, delete-orphan')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'content': self.content,
+            'owner': self.owner.username if self.owner else None,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'collaborators': [c.user.username for c in self.collaborators]
+        }
 
 
 class DocumentCollaborator(db.Model):
-    """Document sharing and permissions"""
     __tablename__ = 'document_collaborators'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -136,12 +143,9 @@ class DocumentCollaborator(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     permission = db.Column(db.String(20), default='viewer')  # viewer, commenter, editor
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user = db.relationship('User', backref='shared_documents')
 
 
 class DocumentVersion(db.Model):
-    """Version history for documents"""
     __tablename__ = 'document_versions'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -150,12 +154,9 @@ class DocumentVersion(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     version_number = db.Column(db.Integer, nullable=False)
-    
-    user = db.relationship('User', backref='document_versions')
 
 
 class Comment(db.Model):
-    """Comments on documents"""
     __tablename__ = 'comments'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -166,5 +167,5 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     resolved = db.Column(db.Boolean, default=False)
     
-    user = db.relationship('User', backref='comments')
+    # Self-referential relationship for replies
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]))

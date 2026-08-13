@@ -1,6 +1,7 @@
-﻿/* ============================================
-   MAIN APPLICATION
-   ============================================ */
+﻿/**
+ * MAIN APPLICATION
+ * Initializes the collaborative document editor with all features
+ */
 
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('editor-container');
@@ -17,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         docId: docId,
         userId: userId,
         username: username,
-        container: '#editor-container'
+        container: '#editor'
     });
     editor.setContent(initialContent);
     
@@ -30,25 +31,64 @@ document.addEventListener('DOMContentLoaded', function() {
             UI.setStatus('', 'Saved');
             UI.updateLastSaved();
         },
-        onError: () => UI.setStatus('', 'Error saving')
+        onError: () => UI.setStatus('error', 'Error saving')
     });
     
-    // Initialize Real-Time
+    // Initialize Real-Time with typing indicators
     const realtime = new RealTime({
         docId: docId,
         editor: editor,
-        onUserJoined: (data) => UI.addPresenceUser(data),
-        onUserLeft: (data) => UI.removePresenceUser(data),
+        onUserJoined: (data) => {
+            UI.addPresenceUser(data);
+            UI.showNotification('👤 ' + data.username + ' joined the document', 'info');
+        },
+        onUserLeft: (data) => {
+            UI.removePresenceUser(data);
+            UI.showNotification('👤 ' + data.username + ' left the document', 'info');
+        },
         onUpdate: (data) => {
             UI.updateWordCount(editor.getWordCount());
             UI.updateLastSaved();
-            UI.showNotification('✏️ Updated by ' + data.user);
+            if (data.user && data.user !== username) {
+                UI.showNotification('✏️ ' + data.user + ' updated the document', 'info');
+            }
+        },
+        onTyping: (data) => {
+            showTypingIndicator(data.username + ' is typing...');
+        },
+        onStopTyping: (data) => {
+            hideTypingIndicator(data.username);
         }
     });
     
     // Update word count on changes
-    editor.on('text-change', () => {
-        UI.updateWordCount(editor.getWordCount());
+    editor.on('text-change', function(delta, oldDelta, source) {
+        if (source === 'user') {
+            const content = editor.getContent();
+            
+            // Update UI
+            UI.updateWordCount(editor.getWordCount());
+            
+            // Send to other users
+            realtime.sendChange(content);
+            
+            // Send typing indicator
+            realtime.sendTyping();
+            
+            // Auto-stop typing after 1 second
+            clearTimeout(window.typingTimeout);
+            window.typingTimeout = setTimeout(() => {
+                realtime.sendStopTyping();
+            }, 1000);
+        }
+    });
+    
+    // Track cursor position
+    editor.on('selection-change', function(range, oldRange, source) {
+        if (source === 'user' && range) {
+            const index = range.index || 0;
+            realtime.sendCursor(index);
+        }
     });
     
     // Initial word count
@@ -62,14 +102,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (titleInput) {
         titleInput.addEventListener('input', function() {
             const newTitle = this.value.trim() || 'Untitled';
-            document.title = newTitle + ' - Editor';
+            document.title = newTitle + ' - Collaborative Editor';
             
             clearTimeout(titleTimeout);
             titleTimeout = setTimeout(() => {
-                fetch('/api/documents/' + docId + '/rename', {
+                fetch('/documents/' + docId + '/api/rename', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title: newTitle })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'renamed') {
+                        UI.showNotification('Document renamed!', 'success');
+                    }
+                })
+                .catch(() => {
+                    UI.showNotification('Failed to rename', 'danger');
                 });
             }, 1000);
         });
@@ -80,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.ctrlKey && e.key === 's') {
             e.preventDefault();
             autosave.forceSave();
-            UI.showNotification('Document saved! ✅');
+            UI.showNotification('Document saved! ✅', 'success');
         }
     });
     
@@ -89,3 +138,23 @@ document.addEventListener('DOMContentLoaded', function() {
         realtime.leaveDocument();
     });
 });
+
+// ============================================
+// TYPING INDICATOR UI
+// ============================================
+
+function showTypingIndicator(message) {
+    const el = document.getElementById('typing-indicators');
+    if (el) {
+        el.textContent = '⌨️ ' + message;
+        el.style.display = 'block';
+    }
+}
+
+function hideTypingIndicator(username) {
+    const el = document.getElementById('typing-indicators');
+    if (el && el.textContent.includes(username)) {
+        el.textContent = '';
+        el.style.display = 'none';
+    }
+}

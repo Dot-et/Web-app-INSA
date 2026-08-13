@@ -10,6 +10,11 @@ import secrets
 import os
 import requests
 from dotenv import load_dotenv
+from chapa import Chapa
+import os
+
+# Initialize Chapa with your secret key
+chapa = Chapa(os.environ.get('CHAPA_SECRET_KEY'))
 
 # Import from models
 from models import db, User, UserSession

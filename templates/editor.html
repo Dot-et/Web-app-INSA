@@ -28,12 +28,15 @@
         flex-wrap: wrap;
         gap: 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
     }
     
     .header-left {
         display: flex;
         align-items: center;
         gap: 12px;
+        flex: 1;
+        min-width: 200px;
     }
     
     .back-btn {
@@ -59,10 +62,11 @@
         background: transparent;
         padding: 4px 8px;
         outline: none;
-        width: 200px;
+        flex: 1;
+        min-width: 150px;
         color: #1a1a2e;
         font-family: inherit;
-        transition: background 0.2s;
+        transition: background 0.2s, color 0.3s;
     }
     
     .doc-title:hover {
@@ -92,6 +96,7 @@
         padding: 4px 12px;
         background: #f0f2f5;
         border-radius: 20px;
+        transition: all 0.3s ease;
     }
     
     .status .dot {
@@ -147,6 +152,7 @@
     .btn-secondary {
         background: #f0f2f5;
         color: #1a1a2e;
+        transition: all 0.3s ease;
     }
     
     .btn-secondary:hover {
@@ -159,6 +165,7 @@
         padding: 8px 12px;
         border-radius: 10px 10px 0 0;
         border-bottom: 1px solid #e8ecf0;
+        transition: all 0.3s ease;
     }
     
     #toolbar {
@@ -175,6 +182,7 @@
         margin-right: 4px;
         padding-right: 4px;
         border-right: 1px solid #e8ecf0;
+        transition: border-color 0.3s ease;
     }
     
     #toolbar .ql-formats:last-child {
@@ -217,6 +225,7 @@
         color: #1a1a2e;
         height: 30px;
         outline: none;
+        transition: all 0.3s ease;
     }
     
     #toolbar select:hover {
@@ -229,6 +238,7 @@
         border-radius: 0 0 10px 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         min-height: 400px;
+        transition: all 0.3s ease;
     }
     
     #editor {
@@ -237,6 +247,7 @@
         font-size: 15px;
         line-height: 1.8;
         color: #1a1a2e;
+        transition: color 0.3s ease;
     }
     
     /* ---- PRESENCE BAR ---- */
@@ -244,13 +255,13 @@
         background: #ffffff;
         border-radius: 10px;
         padding: 10px 16px;
-        margin-top: 12px;
         display: flex;
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         border: 1px solid rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
     }
     
     .presence-bar .presence-label {
@@ -290,6 +301,7 @@
         justify-content: center;
         font-size: 11px;
         font-weight: 600;
+        flex-shrink: 0;
     }
     
     .presence-bar .presence-user .status-indicator {
@@ -306,13 +318,31 @@
         flex-wrap: wrap;
     }
     
+    /* ---- TYPING INDICATOR ---- */
+    #typing-indicators {
+        font-size: 13px;
+        color: #6c757d;
+        font-style: italic;
+        padding: 4px 12px;
+        background: #f8f9fa;
+        border-radius: 20px;
+        animation: pulse-text 1s infinite;
+        display: none;
+        transition: all 0.3s ease;
+    }
+    
+    @keyframes pulse-text {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
     /* ---- COMMENTS SECTION ---- */
     .comments-section {
         background: #ffffff;
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        margin-top: 12px;
+        transition: all 0.3s ease;
     }
     
     .comments-section .comments-header {
@@ -329,6 +359,8 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        margin: 0;
+        transition: color 0.3s ease;
     }
     
     .comments-section .comments-header h3 .badge {
@@ -337,6 +369,7 @@
         border-radius: 12px;
         font-size: 12px;
         color: #6c757d;
+        transition: all 0.3s ease;
     }
     
     .comment-item {
@@ -344,6 +377,7 @@
         gap: 12px;
         padding: 12px 0;
         border-bottom: 1px solid #f0f2f5;
+        transition: border-color 0.3s ease;
     }
     
     .comment-item:last-child {
@@ -372,6 +406,7 @@
         font-weight: 600;
         font-size: 14px;
         color: #1a1a2e;
+        transition: color 0.3s ease;
     }
     
     .comment-item .comment-content .comment-time {
@@ -385,12 +420,14 @@
         font-size: 14px;
         color: #333;
         word-wrap: break-word;
+        transition: color 0.3s ease;
     }
     
     .comment-item .comment-content .comment-actions {
         margin-top: 6px;
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
     }
     
     .comment-item .comment-content .comment-actions button {
@@ -409,6 +446,11 @@
         color: #4a90d9;
     }
     
+    .comment-item .comment-content .comment-actions button.delete:hover {
+        background: #fde8e8;
+        color: #e74c3c;
+    }
+    
     .comment-item.resolved {
         opacity: 0.6;
     }
@@ -423,6 +465,12 @@
         margin-top: 16px;
     }
     
+    .comment-input form {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    
     .comment-input input {
         flex: 1;
         padding: 10px 14px;
@@ -430,8 +478,10 @@
         border-radius: 8px;
         font-size: 14px;
         outline: none;
-        transition: border-color 0.2s;
+        transition: all 0.3s ease;
         font-family: inherit;
+        background: #ffffff;
+        color: #1a1a2e;
     }
     
     .comment-input input:focus {
@@ -463,12 +513,22 @@
         color: #6c757d;
         flex-wrap: wrap;
         gap: 8px;
+        transition: all 0.3s ease;
     }
     
     .editor-footer span {
         display: flex;
         align-items: center;
         gap: 6px;
+    }
+    
+    .editor-footer kbd {
+        background: #e8ecf0;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: inherit;
+        transition: background 0.3s ease;
     }
     
     /* ---- RESPONSIVE ---- */
@@ -482,15 +542,20 @@
         }
         .header-right {
             flex-wrap: wrap;
+            justify-content: flex-start;
         }
         .doc-title {
             width: 100%;
+            min-width: unset;
         }
         #editor {
             padding: 16px;
             font-size: 14px;
         }
         .comment-input {
+            flex-wrap: wrap;
+        }
+        .comment-input form {
             flex-wrap: wrap;
         }
         .comment-input input {
@@ -515,6 +580,292 @@
             font-size: 13px;
         }
     }
+
+    /* ---- REMOTE CURSOR ---- */
+    .remote-cursor {
+        position: absolute;
+        width: 2px;
+        height: 20px;
+        background: #4a90d9;
+        animation: blink 1s infinite;
+        pointer-events: none;
+        z-index: 1000;
+    }
+    
+    .remote-cursor-label {
+        position: absolute;
+        font-size: 10px;
+        background: #4a90d9;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+        top: -18px;
+        left: -4px;
+        pointer-events: none;
+        z-index: 1001;
+    }
+    
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+
+    /* ============================================
+       DARK MODE - COMPLETE
+       ============================================ */
+    
+    /* Body & Background */
+    body.dark-mode {
+        background: #0d0d1a !important;
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode .main-content {
+        background: transparent !important;
+    }
+    
+    /* Editor Header */
+    body.dark-mode .editor-header {
+        background: #1a1a2e !important;
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode .doc-title {
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode .doc-title:hover {
+        background: #2d2d44 !important;
+    }
+    
+    body.dark-mode .doc-title:focus {
+        background: #2d2d44 !important;
+    }
+    
+    body.dark-mode .back-btn {
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .back-btn:hover {
+        background: #2d2d44 !important;
+        color: #ffffff !important;
+    }
+    
+    /* Toolbar */
+    body.dark-mode .toolbar-wrapper {
+        background: #1a1a2e !important;
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode #toolbar .ql-formats {
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode #toolbar button {
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode #toolbar button:hover {
+        background: #2d2d44 !important;
+        color: #ffffff !important;
+    }
+    
+    body.dark-mode #toolbar button.ql-active {
+        background: #2d2d44 !important;
+        color: #4a90d9 !important;
+    }
+    
+    body.dark-mode #toolbar select {
+        background: #1a1a2e !important;
+        color: #e8ecf0 !important;
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode #toolbar select:hover {
+        border-color: #4a90d9 !important;
+    }
+    
+    /* Editor */
+    body.dark-mode .editor-wrapper {
+        background: #1a1a2e !important;
+    }
+    
+    body.dark-mode #editor {
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode #editor h1,
+    body.dark-mode #editor h2,
+    body.dark-mode #editor h3 {
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode #editor blockquote {
+        background: #2d2d44 !important;
+        color: #b0b0c0 !important;
+        border-left-color: #4a90d9 !important;
+    }
+    
+    body.dark-mode #editor pre.ql-syntax {
+        background: #0d0d1a !important;
+        color: #e8ecf0 !important;
+    }
+    
+    /* Quill specific */
+    body.dark-mode .ql-editor.ql-blank::before {
+        color: #6c757d !important;
+    }
+    
+    body.dark-mode .ql-editor {
+        color: #e8ecf0 !important;
+    }
+    
+    /* Presence Bar */
+    body.dark-mode .presence-bar {
+        background: #1a1a2e !important;
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode .presence-bar .presence-label {
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .presence-bar .presence-user {
+        background: #2d2d44 !important;
+        border-color: #3d3d5c !important;
+        color: #e8ecf0 !important;
+    }
+    
+    /* Status */
+    body.dark-mode .status {
+        background: #2d2d44 !important;
+        color: #b0b0c0 !important;
+    }
+    
+    /* Buttons */
+    body.dark-mode .btn-secondary {
+        background: #2d2d44 !important;
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode .btn-secondary:hover {
+        background: #3d3d5c !important;
+    }
+    
+    /* Comments */
+    body.dark-mode .comments-section {
+        background: #1a1a2e !important;
+    }
+    
+    body.dark-mode .comments-section .comments-header h3 {
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode .comments-section .comments-header h3 .badge {
+        background: #2d2d44 !important;
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .comment-item {
+        border-color: #2d2d44 !important;
+    }
+    
+    body.dark-mode .comment-item .comment-content .comment-author {
+        color: #e8ecf0 !important;
+    }
+    
+    body.dark-mode .comment-item .comment-content .comment-text {
+        color: #c0c0d0 !important;
+    }
+    
+    body.dark-mode .comment-item .comment-content .comment-actions button {
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .comment-item .comment-content .comment-actions button:hover {
+        background: #2d2d44 !important;
+        color: #4a90d9 !important;
+    }
+    
+    body.dark-mode .comment-input input {
+        background: #2d2d44 !important;
+        color: #e8ecf0 !important;
+        border-color: #3d3d5c !important;
+    }
+    
+    body.dark-mode .comment-input input:focus {
+        border-color: #4a90d9 !important;
+    }
+    
+    body.dark-mode .empty-comments {
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .empty-comments i {
+        color: #3d3d5c !important;
+    }
+    
+    /* Footer */
+    body.dark-mode .editor-footer {
+        background: #15152a !important;
+        border-color: #2d2d44 !important;
+        color: #b0b0c0 !important;
+    }
+    
+    body.dark-mode .editor-footer kbd {
+        background: #2d2d44 !important;
+        color: #e8ecf0 !important;
+    }
+    
+    /* Typing indicator */
+    body.dark-mode #typing-indicators {
+        background: #2d2d44 !important;
+        color: #b0b0c0 !important;
+    }
+    
+    /* Remote cursor in dark mode */
+    body.dark-mode .remote-cursor {
+        background: #4a90d9 !important;
+    }
+    
+    body.dark-mode .remote-cursor-label {
+        background: #4a90d9 !important;
+        color: #ffffff !important;
+    }
+
+    /* Shortcut hint */
+    .shortcut-hint {
+        font-size: 11px;
+        color: #999;
+        margin-left: 4px;
+    }
+    body.dark-mode .shortcut-hint {
+        color: #6c757d;
+    }
+
+    /* Keyboard shortcut toast */
+    .shortcut-toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 9999;
+        animation: fadeInOut 1.5s ease;
+        pointer-events: none;
+    }
+    
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
 </style>
 {% endblock %}
 
@@ -523,11 +874,24 @@
 <div class="editor-page">
 
     <!-- ============================================
+    EDITOR CONTAINER (for JavaScript initialization)
+    ============================================ -->
+    <div id="editor-container" 
+         data-doc-id="{{ document.id }}"
+         data-user-id="{{ current_user.id }}"
+         data-username="{{ current_user.username }}"
+         data-content="{{ document.content|tojson }}"
+         data-title="{{ document.title }}">
+    </div>
+
+    <!-- ============================================
     HEADER
     ============================================ -->
     <div class="editor-header">
         <div class="header-left">
-            <button class="back-btn" onclick="window.location.href='{{ url_for('documents.list_documents') }}'">←</button>
+            <button class="back-btn" onclick="window.location.href='{{ url_for('documents.list_documents') }}'" title="Back to Documents">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             <input id="docTitle" class="doc-title" value="{{ document.title }}" placeholder="Untitled Document">
         </div>
         <div class="header-right">
@@ -535,10 +899,19 @@
                 <span class="dot" id="statusDot"></span>
                 <span id="statusText">Saved</span>
             </span>
-            <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('documents.view_versions', doc_id=document.id) }}'">
+            <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('documents.view_versions', doc_id=document.id) }}'" title="View Version History">
                 <i class="fas fa-history"></i> Versions
             </button>
-            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('documents.share_document', doc_id=document.id) }}'">
+            <button class="btn btn-secondary" onclick="exportPDF()" title="Export as PDF">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn btn-secondary" onclick="exportMarkdown()" title="Export as Markdown">
+                <i class="fas fa-file-alt"></i> MD
+            </button>
+            <button class="btn btn-secondary" onclick="toggleTheme()" title="Toggle Dark Mode" id="themeBtn">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('documents.share_document', doc_id=document.id) }}'" title="Share Document">
                 <i class="fas fa-share-alt"></i> Share
             </button>
         </div>
@@ -549,12 +922,26 @@
     ============================================ -->
     <div class="presence-bar">
         <span class="presence-label"><i class="fas fa-circle"></i> Online:</span>
-        <div class="presence-user">
+        <div class="presence-user" id="current-user">
             <span class="avatar">{{ current_user.username[0].upper() }}</span>
             <span>{{ current_user.username }}</span>
             <span class="status-indicator"></span>
         </div>
         <div id="presence-others"></div>
+        <div id="typing-indicators"></div>
+    </div>
+
+    <!-- ============================================
+    SHORTCUTS HINT
+    ============================================ -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #6c757d; padding: 4px 8px;">
+        <span><kbd>Ctrl+B</kbd> Bold</span>
+        <span><kbd>Ctrl+I</kbd> Italic</span>
+        <span><kbd>Ctrl+U</kbd> Underline</span>
+        <span><kbd>Ctrl+Shift+1</kbd> H1</span>
+        <span><kbd>Ctrl+Shift+2</kbd> H2</span>
+        <span><kbd>Ctrl+Shift+3</kbd> H3</span>
+        <span><kbd>Ctrl+S</kbd> Save</span>
     </div>
 
     <!-- ============================================
@@ -608,6 +995,7 @@
         <span><i class="fas fa-file-alt"></i> <span id="wordCount">0</span> words</span>
         <span><i class="fas fa-user"></i> {{ current_user.username }}</span>
         <span id="lastSaved"><i class="fas fa-save"></i> Auto-save enabled</span>
+        <span><kbd>Ctrl+S</kbd> Save</span>
     </div>
 
     <!-- ============================================
@@ -621,7 +1009,7 @@
         <div id="commentsList">
             {% if comments %}
                 {% for comment in comments %}
-                    <div class="comment-item{% if comment.resolved %} resolved{% endif %}">
+                    <div class="comment-item{% if comment.resolved %} resolved{% endif %}" id="comment-{{ comment.id }}">
                         <div class="avatar">{{ comment.user.username[0].upper() }}</div>
                         <div class="comment-content">
                             <div>
@@ -632,12 +1020,12 @@
                             <div class="comment-actions">
                                 {% if not comment.resolved %}
                                     <form method="POST" action="{{ url_for('documents.resolve_comment', comment_id=comment.id) }}" style="display:inline;">
-                                        <button type="submit">Resolve</button>
+                                        <button type="submit" class="resolve">✓ Resolve</button>
                                     </form>
                                 {% endif %}
                                 {% if comment.user_id == current_user.id %}
                                     <form method="POST" action="{{ url_for('documents.delete_comment', comment_id=comment.id) }}" style="display:inline;">
-                                        <button type="submit" onclick="return confirm('Delete this comment?');">Delete</button>
+                                        <button type="submit" class="delete" onclick="return confirm('Delete this comment?');">✕ Delete</button>
                                     </form>
                                 {% endif %}
                             </div>
@@ -653,7 +1041,7 @@
         </div>
 
         <div class="comment-input">
-            <form method="POST" action="{{ url_for('documents.add_comment', doc_id=document.id) }}" style="display: flex; gap: 10px; width: 100%;">
+            <form method="POST" action="{{ url_for('documents.add_comment', doc_id=document.id) }}">
                 <input type="text" name="content" placeholder="Add a comment..." required>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Add</button>
             </form>
@@ -665,251 +1053,335 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- ============================================
+     JAVASCRIPT IMPORTS
+     ============================================ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<!-- Custom JS Files -->
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/autosave.js') }}"></script>
+<script src="{{ url_for('static', filename='js/realtime.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+<!-- ============================================
+     BONUS FEATURES
+     ============================================ -->
 <script>
-    // ============================================
-    // SOCKET.IO INITIALIZATION
-    // ============================================
-    const socket = io();
+// ============================================
+// EXPORT FUNCTIONS
+// ============================================
 
-    const docId = {{ document.id }};
-    const userId = {{ current_user.id }};
-    const username = "{{ current_user.username }}";
-
-    // ============================================
-    // QUILL EDITOR
-    // ============================================
-    const quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: { toolbar: '#toolbar' },
-        placeholder: 'Start writing your document...'
-    });
-
-    // Set initial content
-    const initialContent = {{ document.content|tojson }};
-    if (initialContent) {
-        quill.root.innerHTML = initialContent;
-    }
-
-    // ============================================
-    // WORD COUNT
-    // ============================================
-    function updateWordCount() {
-        const text = quill.getText().trim();
-        const words = text.length === 0 ? 0 : text.split(/\s+/).length;
-        document.getElementById('wordCount').innerText = words;
-    }
-    quill.on('text-change', updateWordCount);
-    updateWordCount();
-
-    // ============================================
-    // AUTO-SAVE - FIXED URL
-    // ============================================
-    let saveTimeout = null;
-    const statusText = document.getElementById('statusText');
-    const statusDot = document.getElementById('statusDot');
-    const lastSaved = document.getElementById('lastSaved');
-
-    function setStatus(status, message) {
-        statusDot.className = 'dot ' + status;
-        statusText.innerText = message;
-    }
-
-    function updateLastSaved() {
-        const now = new Date();
-        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        lastSaved.innerHTML = '<i class="fas fa-save"></i> Last saved: ' + time;
-    }
-
-    quill.on('text-change', function(delta, oldDelta, source) {
-        if (source === 'user') {
-            const content = quill.root.innerHTML;
-            setStatus('saving', 'Saving...');
-
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(function() {
-                // ✅ FIXED: Correct URL with /documents/
-                fetch('/documents/' + docId + '/api/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: content })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'saved') {
-                        setStatus('', 'Saved');
-                        updateLastSaved();
-                    }
-                })
-                .catch(() => {
-                    setStatus('error', 'Error saving');
-                });
-            }, 800);
-        }
-    });
-
-    // ============================================
-    // TITLE AUTO-SAVE - FIXED URL
-    // ============================================
-    const titleInput = document.getElementById('docTitle');
-    let titleTimeout = null;
-
-    titleInput.addEventListener('input', function() {
-        const newTitle = this.value.trim() || 'Untitled';
-        document.title = newTitle + ' - SyncWrite';
-
-        clearTimeout(titleTimeout);
-        titleTimeout = setTimeout(function() {
-            // ✅ FIXED: Correct URL with /documents/
-            fetch('/documents/' + docId + '/api/rename', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: newTitle })
-            });
-        }, 1000);
-    });
-
-    // ============================================
-    // REAL-TIME COLLABORATION
-    // ============================================
-
-    // 1. JOIN DOCUMENT ROOM
-    socket.emit('join_document', { doc_id: docId });
-
-    // 2. SEND CHANGES TO OTHERS
-    quill.on('text-change', function(delta, oldDelta, source) {
-        if (source === 'user') {
-            const content = quill.root.innerHTML;
-            socket.emit('document_change', {
-                doc_id: docId,
-                content: content
-            });
-        }
-    });
-
-    // 3. RECEIVE CHANGES FROM OTHERS
-    socket.on('document_updated', function(data) {
-        const currentContent = quill.root.innerHTML;
-        
-        if (data.content !== currentContent) {
-            quill.root.innerHTML = data.content;
-            updateWordCount();
-            updateLastSaved();
-            
-            // Only show notification for OTHER users
-            if (data.user !== username) {
-                showNotification('✏️ Updated by ' + data.user);
-            }
-        }
-    });
-
-    // ============================================
-    // PRESENCE (Online Users)
-    // ============================================
-
-    const presenceOthers = document.getElementById('presence-others');
-    const users = {};
-    users[userId] = username;
-
-    socket.on('user_joined', function(data) {
-        if (data.user_id !== userId) {
-            users[data.user_id] = data.username;
-            renderPresence();
-            showNotification('👤 ' + data.username + ' joined');
-        }
-    });
-
-    socket.on('user_left', function(data) {
-        if (data.user_id !== userId) {
-            delete users[data.user_id];
-            renderPresence();
-            showNotification('👤 ' + data.username + ' left');
-        }
-    });
-
-    function renderPresence() {
-        let html = '';
-        for (let id in users) {
-            if (id != userId) {
-                const name = users[id];
-                html += `
-                    <div class="presence-user">
-                        <span class="avatar">${name[0].toUpperCase()}</span>
-                        <span>${name}</span>
-                        <span class="status-indicator"></span>
-                    </div>
-                `;
-            }
-        }
-        presenceOthers.innerHTML = html;
-    }
-
-    // ============================================
-    // NOTIFICATIONS
-    // ============================================
-    function showNotification(message) {
-        const container = document.querySelector('.flash-container');
-        if (!container) return;
-        
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-info';
-        alert.innerHTML = message + ' <button class="close-btn">&times;</button>';
-        container.appendChild(alert);
-
-        setTimeout(function() {
-            alert.style.opacity = '0';
-            setTimeout(function() { alert.remove(); }, 300);
-        }, 3000);
-
-        alert.querySelector('.close-btn').addEventListener('click', function() {
-            alert.remove();
+// Export to PDF
+function exportPDF() {
+    const content = document.getElementById('editor').innerHTML;
+    const title = document.getElementById('docTitle').value || 'Document';
+    
+    const element = document.createElement('div');
+    element.style.padding = '40px';
+    element.style.fontFamily = 'Arial, sans-serif';
+    element.style.background = '#ffffff';
+    element.innerHTML = `
+        <h1 style="color: #1a1a2e; border-bottom: 2px solid #4a90d9; padding-bottom: 10px;">${title}</h1>
+        <div style="font-size: 14px; line-height: 1.8; color: #333;">${content}</div>
+        <p style="margin-top: 30px; color: #999; font-size: 12px; border-top: 1px solid #eee; padding-top: 10px;">
+            Exported from Collaborative Document Editor
+        </p>
+    `;
+    document.body.appendChild(element);
+    
+    html2pdf()
+        .set({
+            margin: 1,
+            filename: title + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        })
+        .from(element)
+        .save()
+        .then(() => {
+            document.body.removeChild(element);
+            showToast('PDF exported successfully! ✅', 'success');
+        })
+        .catch(() => {
+            document.body.removeChild(element);
+            showToast('Failed to export PDF', 'error');
         });
+}
+
+// Export to Markdown
+function exportMarkdown() {
+    const content = document.getElementById('editor').innerHTML;
+    const title = document.getElementById('docTitle').value || 'Document';
+    
+    let markdown = content;
+    markdown = markdown.replace(/<h1>(.*?)<\/h1>/g, '# $1\n\n');
+    markdown = markdown.replace(/<h2>(.*?)<\/h2>/g, '## $1\n\n');
+    markdown = markdown.replace(/<h3>(.*?)<\/h3>/g, '### $1\n\n');
+    markdown = markdown.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
+    markdown = markdown.replace(/<b>(.*?)<\/b>/g, '**$1**');
+    markdown = markdown.replace(/<em>(.*?)<\/em>/g, '*$1*');
+    markdown = markdown.replace(/<i>(.*?)<\/i>/g, '*$1*');
+    markdown = markdown.replace(/<u>(.*?)<\/u>/g, '_$1_');
+    markdown = markdown.replace(/<ul>(.*?)<\/ul>/gs, '$1\n');
+    markdown = markdown.replace(/<li>(.*?)<\/li>/g, '- $1\n');
+    markdown = markdown.replace(/<br>/g, '\n');
+    markdown = markdown.replace(/<p>(.*?)<\/p>/g, '$1\n\n');
+    markdown = markdown.replace(/<a href="(.*?)">(.*?)<\/a>/g, '[$2]($1)');
+    markdown = markdown.replace(/<blockquote>(.*?)<\/blockquote>/g, '> $1\n');
+    markdown = markdown.replace(/<pre><code>(.*?)<\/code><\/pre>/gs, '```\n$1\n```\n');
+    markdown = markdown.replace(/<code>(.*?)<\/code>/g, '`$1`');
+    
+    markdown = '# ' + title + '\n\n' + markdown;
+    
+    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = title.replace(/[^a-zA-Z0-9]/g, '_') + '.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Markdown exported successfully! ✅', 'success');
+}
+
+// ============================================
+// DARK MODE - COMPLETE
+// ============================================
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
     }
+    showToast(isDark ? '🌙 Dark mode enabled' : '☀️ Light mode enabled', 'info');
+}
 
-    // ============================================
-    // KEYBOARD SHORTCUTS
-    // ============================================
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            const content = quill.root.innerHTML;
-            fetch('/documents/' + docId + '/api/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: content })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'saved') {
-                    setStatus('', 'Saved');
-                    updateLastSaved();
-                    showNotification('Document saved! ✅');
-                }
-            })
-            .catch(() => {
-                setStatus('error', 'Error saving');
-            });
+// Load saved theme on page load
+(function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            icon.className = 'fas fa-sun';
         }
-    });
+    }
+})();
 
-    // ============================================
-    // CLEANUP ON UNLOAD
-    // ============================================
-    window.addEventListener('beforeunload', function() {
-        socket.emit('leave_document', { doc_id: docId });
-        const content = quill.root.innerHTML;
-        fetch('/documents/' + docId + '/api/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: content })
-        });
-    });
+// ============================================
+// KEYBOARD SHORTCUTS - COMPLETE
+// ============================================
 
-    // ============================================
-    // INIT
-    // ============================================
-    updateLastSaved();
+document.addEventListener('keydown', function(e) {
+    // Don't trigger if typing in input fields
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        return;
+    }
+    
+    let shortcutName = '';
+    
+    // Bold: Ctrl+B
+    if (e.ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        const btn = document.querySelector('.ql-bold');
+        if (btn) btn.click();
+        shortcutName = 'Bold';
+    }
+    
+    // Italic: Ctrl+I
+    else if (e.ctrlKey && e.key === 'i') {
+        e.preventDefault();
+        const btn = document.querySelector('.ql-italic');
+        if (btn) btn.click();
+        shortcutName = 'Italic';
+    }
+    
+    // Underline: Ctrl+U
+    else if (e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+        const btn = document.querySelector('.ql-underline');
+        if (btn) btn.click();
+        shortcutName = 'Underline';
+    }
+    
+    // Heading 1: Ctrl+Shift+1
+    else if (e.ctrlKey && e.shiftKey && e.key === '1') {
+        e.preventDefault();
+        const select = document.querySelector('.ql-header');
+        if (select) {
+            select.value = '1';
+            select.dispatchEvent(new Event('change'));
+        }
+        shortcutName = 'Heading 1';
+    }
+    
+    // Heading 2: Ctrl+Shift+2
+    else if (e.ctrlKey && e.shiftKey && e.key === '2') {
+        e.preventDefault();
+        const select = document.querySelector('.ql-header');
+        if (select) {
+            select.value = '2';
+            select.dispatchEvent(new Event('change'));
+        }
+        shortcutName = 'Heading 2';
+    }
+    
+    // Heading 3: Ctrl+Shift+3
+    else if (e.ctrlKey && e.shiftKey && e.key === '3') {
+        e.preventDefault();
+        const select = document.querySelector('.ql-header');
+        if (select) {
+            select.value = '3';
+            select.dispatchEvent(new Event('change'));
+        }
+        shortcutName = 'Heading 3';
+    }
+    
+    // Save: Ctrl+S
+    else if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        if (typeof autosave !== 'undefined' && autosave) {
+            autosave.forceSave();
+        }
+        shortcutName = 'Saved';
+    }
+    
+    // Show shortcut toast
+    if (shortcutName) {
+        showShortcutToast(shortcutName);
+    }
+});
+
+function showShortcutToast(name) {
+    const existing = document.querySelector('.shortcut-toast');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'shortcut-toast';
+    toast.innerHTML = `⌨️ ${name}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 1500);
+}
+
+// ============================================
+// TOAST NOTIFICATIONS
+// ============================================
+
+function showToast(message, type = 'info') {
+    // Use the UI module if available
+    if (typeof UI !== 'undefined' && UI.showNotification) {
+        UI.showNotification(message, type);
+        return;
+    }
+    
+    // Fallback notification
+    const container = document.querySelector('.flash-container');
+    if (!container) {
+        // Create container if it doesn't exist
+        const newContainer = document.createElement('div');
+        newContainer.className = 'flash-container';
+        document.body.insertBefore(newContainer, document.body.firstChild);
+    }
+    
+    const alert = document.createElement('div');
+    const typeClass = type || 'info';
+    alert.className = 'alert alert-' + typeClass;
+    alert.innerHTML = message + ' <button class="close-btn">&times;</button>';
+    
+    const targetContainer = document.querySelector('.flash-container') || container;
+    targetContainer.appendChild(alert);
+    
+    setTimeout(function() {
+        alert.style.opacity = '0';
+        setTimeout(function() { alert.remove(); }, 300);
+    }, 3000);
+    
+    alert.querySelector('.close-btn').addEventListener('click', function() {
+        alert.remove();
+    });
+}
+
+// Override the UI showNotification if it exists
+if (typeof UI !== 'undefined' && UI.showNotification) {
+    const originalShow = UI.showNotification;
+    UI.showNotification = function(message, type) {
+        // Use toast for non-error messages, flash for errors
+        if (type === 'danger' || type === 'error') {
+            originalShow(message, type);
+        } else {
+            showToast(message, type);
+        }
+    };
+}
+
+// ============================================
+// DOCUMENT SEARCH (for documents page)
+// ============================================
+
+// This will be used in documents.html
+function searchDocuments() {
+    const input = document.getElementById('searchDocs');
+    if (!input) return;
+    
+    const query = input.value.toLowerCase().trim();
+    const docCards = document.querySelectorAll('.doc-card');
+    let visibleCount = 0;
+    
+    docCards.forEach(card => {
+        const title = card.querySelector('.doc-title')?.textContent?.toLowerCase() || '';
+        const owner = card.querySelector('.doc-meta .owner')?.textContent?.toLowerCase() || '';
+        const match = title.includes(query) || owner.includes(query);
+        card.style.display = match ? 'flex' : 'none';
+        if (match) visibleCount++;
+    });
+    
+    // Show/hide empty state
+    const emptyState = document.getElementById('search-empty');
+    if (emptyState) {
+        emptyState.style.display = visibleCount === 0 && query !== '' ? 'block' : 'none';
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+// Set up search on documents page
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchDocs');
+    if (searchInput) {
+        searchInput.addEventListener('input', searchDocuments);
+    }
+    
+    // Add search empty state if not exists
+    const docList = document.querySelector('.doc-list');
+    if (docList && !document.getElementById('search-empty')) {
+        const empty = document.createElement('div');
+        empty.id = 'search-empty';
+        empty.style.display = 'none';
+        empty.style.textAlign = 'center';
+        empty.style.padding = '40px 20px';
+        empty.style.color = '#6c757d';
+        empty.innerHTML = `
+            <i class="fas fa-search" style="font-size: 32px; color: #d5d9e0; margin-bottom: 10px; display: block;"></i>
+            <p>No documents found matching your search</p>
+        `;
+        docList.parentNode.appendChild(empty);
+    }
+});
 </script>
 {% endblock %}
